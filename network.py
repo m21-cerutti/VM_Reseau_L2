@@ -8,6 +8,97 @@ import sys
 from model import *
 
 ################################################################################
+#                          AUXILLARY FUNCTION NETWORK                          #
+################################################################################
+
+class Command_Network:
+    '''
+        #commands
+        _________
+
+        CON <nicknamePlayer>
+
+        MAP <namemap>
+
+        MOVE <nicknamePlayer> <x> <y>
+
+        #player
+        A_PLAY <nicknamePlayer> <x> <y>
+        D_PLAY <nicknamePlayer> <x> <y>
+
+        #bomb
+        T_BOMB <deltaTime>
+        A_BOMB <x> <y>
+
+        #fruit
+        A_FRUIT <x> <y>
+        D_FRUIT <x> <y>
+
+    '''
+    def enc_command(cmd)::
+        cmd.replace('\\','')
+
+        if str.startswith("CON"):
+            cmd = cmd.split(" ")
+            return str("CON "+ cmd[1] +"\\").encode("utf-8")
+
+        elif str.startswith("A_PLAY"):
+            cmd =cmd.split(" ")
+            return str("A_PLAY " + cmd[1]+ cmd[2] + cmd[3] +"\\").encode("utf-8")
+
+        elif str.startswith("D_PLAY"):
+            cmd =cmd.split(" ")
+            return str("D_PLAY " + + cmd[1]+ cmd[2] + cmd[3] + "\\").encode("utf-8")
+
+        elif str.startswith("MOVE"):
+            cmd = cmd.replace("MOVE ", "").partition(' ')
+
+            return str("MOVE "+ cmd[0] + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+
+        elif str.startswith("T_BOMB"):
+            cmd =cmd.split(" ")
+            return str("T_BOMB " + cmd[1]  +"\\").encode("utf-8")
+
+        elif str.startswith("A_BOMB"):
+            cmd =cmd.split(" ")
+            return str("A_BOMB " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+
+        elif str.startswith("A_FRUIT"):
+            cmd =cmd.split(" ")
+            return str("A_FRUIT " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+
+        elif str.startswith("D_FRUIT"):
+            cmd =cmd.split(" ")
+            return str("D_FRUIT " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+
+
+        return None;
+        
+        '''
+    def dec_command(sockServer, sock, msg)::
+        cmd = msg.decode("utf-8")
+
+        if cmd.startswith("CON"):
+            cmd =cmd.split(" ")
+            CON(sockServer, sock, cmd[1].replace('\n',''))
+            return True
+        return;
+        '''
+
+        '''
+    def CON (sockServer, sock, nicknamePlayer):
+        newSock, addr= sockServer.accept()
+        listSockets[newSock]= nicknamePlayer
+        servMessage = str("(new connection) "+listSockets[newSock][0]+".\nCanal by default 1.\n").encode("utf-8")
+        sendServ(sockServer, sockServer,0, servMessage)
+        return;
+        '''
+
+
+
+
+
+################################################################################
 #                          NETWORK SERVER CONTROLLER                           #
 ################################################################################
 

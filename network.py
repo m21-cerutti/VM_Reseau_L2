@@ -13,7 +13,14 @@ from model import *
 
 class Command_Network:
     '''
-        #commands
+        #Field
+        ______
+
+        listSockets={}
+
+        model
+
+        #Commands
         _________
 
         CON <nicknamePlayer>
@@ -35,6 +42,13 @@ class Command_Network:
         D_FRUIT <x> <y>
 
     '''
+
+    def __init__(self, socket, name, model, isServer):
+        self.model = model;
+        self.listSockets={}
+        self.sockServer=
+
+
     def enc_command(cmd):
         cmd.replace('\\','')
 
@@ -51,8 +65,7 @@ class Command_Network:
             return str("D_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + "\\").encode()
 
         elif str.startswith("MOVE"):
-            cmd = cmd.replace("MOVE ", "").partition(' ')
-
+            cmd = cmd.split(' ')
             return str("MOVE " + cmd[0] + ' ' + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
         elif str.startswith("T_BOMB"):
@@ -77,21 +90,29 @@ class Command_Network:
     def dec_command(sockServer, sock, msg):
         cmd = msg.decode()
 
-        if cmd.startswith("CON"):
-            CON(nicknamePlayer)
-            return True
+        if cmd.startswith("CON "):
+            cmd = cmd.split(' ')
+            CON(cmd[1])
+
+        elif cmd.startswith("MAP "):
+            cmd = cmd.split(' ')
+            self.model.load_map(cmd[1])
+
+        elif cmd.startswith("MOVE "):
+            cmd = cmd.split(' ')
+            MOVE(listSocket[sock], cmd[1], cmd[2])
         return;
 
-
         '''
-    def CON (sockServer, sock, nicknamePlayer):
-        newSock, addr= sockServer.accept()
-        listSockets[newSock]= nicknamePlayer
-        servMessage = str("(new connection) "+listSockets[newSock][0]+".\nCanal by default 1.\n").encode("utf-8")
-        sendServ(sockServer, sockServer,0, servMessage)
+    def re_send(listSocket, socketServ, cmd):   #server only
+
         return;
-        '''
 
+    def CON (nicknamePlayer):
+        #create player
+        return;
+
+        '''
 
 
 
@@ -105,6 +126,7 @@ class NetworkServerController:
     def __init__(self, model, port):
         self.model = model;
         self.port = port;
+        self.cmd = Command_Network()
         self.soc = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
         self.soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1);
         self.soc.bind(('', port));
@@ -155,6 +177,7 @@ class NetworkClientController:
         self.model = model;
         self.host = host;
         self.port = port;
+        self.cmd = Command_Network()
         self.nickname = nickname;
         self.soc = None;
         try:

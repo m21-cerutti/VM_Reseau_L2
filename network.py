@@ -13,7 +13,14 @@ from model import *
 
 class Command_Network:
     '''
-        #commands
+        #Field
+        ______
+
+        listSockets={}
+
+        model
+
+        #Commands
         _________
 
         CON <nicknamePlayer>
@@ -35,7 +42,14 @@ class Command_Network:
         D_FRUIT <x> <y>
 
     '''
-    def enc_command(cmd)::
+    def __init__(self, socket, name, model, isServer):
+        self.model = model;
+        self.listSockets={}
+        self.sockServer=
+
+
+
+    def enc_command(cmd):
         cmd.replace('\\','')
 
         if str.startswith("CON"):
@@ -51,16 +65,15 @@ class Command_Network:
             return str("D_PLAY " + + cmd[1]+ cmd[2] + cmd[3] + "\\").encode("utf-8")
 
         elif str.startswith("MOVE"):
-            cmd = cmd.replace("MOVE ", "").partition(' ')
-
-            return str("MOVE "+ cmd[0] + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+            cmd = cmd.split(' ')
+            return str("MOVE "+ cmd[1] + cmd[2] + cmd[3]  +"\\").encode("utf-8")
 
         elif str.startswith("T_BOMB"):
             cmd =cmd.split(" ")
             return str("T_BOMB " + cmd[1]  +"\\").encode("utf-8")
 
         elif str.startswith("A_BOMB"):
-            cmd =cmd.split(" ")
+            cmd =cmd.split(" ")port
             return str("A_BOMB " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
 
         elif str.startswith("A_FRUIT"):
@@ -73,7 +86,7 @@ class Command_Network:
 
 
         return None;
-        
+
         '''
     def dec_command(sockServer, sock, msg)::
         cmd = msg.decode("utf-8")
@@ -84,15 +97,14 @@ class Command_Network:
             return True
         return;
         '''
+    def re_send(listSocket, socketServ, cmd):   #server only
 
-        '''
-    def CON (sockServer, sock, nicknamePlayer):
-        newSock, addr= sockServer.accept()
-        listSockets[newSock]= nicknamePlayer
-        servMessage = str("(new connection) "+listSockets[newSock][0]+".\nCanal by default 1.\n").encode("utf-8")
-        sendServ(sockServer, sockServer,0, servMessage)
         return;
-        '''
+
+    def CON (nicknamePlayer):
+        #create player
+        return;
+
 
 
 
@@ -107,6 +119,7 @@ class NetworkServerController:
     def __init__(self, model, port):
         self.model = model;
         self.port = port;
+        self.cmd = Command_Network()
         self.soc = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
         self.soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1);
         self.soc.bind(('', port));
@@ -142,6 +155,7 @@ class NetworkClientController:
         self.model = model;
         self.host = host;
         self.port = port;
+        self.cmd = Command_Network()
         self.nickname = nickname;
         self.soc = None;
         try:

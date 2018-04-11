@@ -27,15 +27,15 @@ class Command_Network:
 
         MAP <namemap>
 
-        MOVE <nicknamePlayer> <x> <y>
+        MOVE <nicknamePlayer> <direction>
 
         #player
-        A_PLAY <nicknamePlayer> <x> <y>
-        D_PLAY <nicknamePlayer> <x> <y>
+        A_PLAY <nicknamePlayer>
+        D_PLAY <nicknamePlayer>
 
         #bomb
-        T_BOMB <deltaTime>
-        A_BOMB <x> <y>
+        T_BOMB <deltaTime> ?
+        A_BOMB <nicknamePlayer>
 
         #fruit
         A_FRUIT <x> <y>
@@ -48,7 +48,7 @@ class Command_Network:
         self.isServer = isServer;
 
 
-    def enc_command(cmd):
+    def enc_command(self, cmd):
         cmd.replace('\\','')
 
         if str.startswith("CON"):
@@ -90,26 +90,45 @@ class Command_Network:
         return None;
 
 
-    def dec_command(sockServer, sock, msg):
+    def dec_command(self, sockServer, sock, msg):
         cmd = msg.decode()
 
         if cmd.startswith("CON "):
             cmd = cmd.split(' ')
             CON(cmd[1])
-            return cmd;
-
 
         elif cmd.startswith("MAP "):
             cmd = cmd.split(' ')
             self.model.load_map(cmd[1])
-            return cmd;
 
         elif cmd.startswith("MOVE "):
             cmd = cmd.split(' ')
             MOVE(listSocket[sock], cmd[1], cmd[2])
-            return cmd;
-            
-        return None;
+
+        elif cmd.startswith("A_PLAY "):
+            cmd = cmd.split(' ')
+            self.model.add_character(cmd[1])
+
+        elif cmd.startswith("D_PLAY "):
+            cmd = cmd.split(' ')
+            self.model.quit(cmd[1])
+
+        elif cmd.startswith("T_BOMB "):
+            cmd = cmd.split(' ')
+            T_BOMB(cmd[1])
+
+        elif cmd.startswith("A_BOMB "):
+            cmd = cmd.split(' ')
+            self.model.drop_bomb(cmd[1])
+
+        elif cmd.startswith("A_FRUIT "):
+            cmd = cmd.split(' ')
+            A_FRUIT(cmd[1], cmd[2])
+
+        elif cmd.startswith("D_FRUIT "):
+            cmd = cmd.split(' ')
+            D_FRUIT(cmd[1], cmd[2])
+        return;
 
         '''
     def re_send(listSocket, socketServ, cmd):   #server only

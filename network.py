@@ -35,55 +35,53 @@ class Command_Network:
         D_FRUIT <x> <y>
 
     '''
-    def enc_command(cmd)::
+    def enc_command(cmd):
         cmd.replace('\\','')
 
         if str.startswith("CON"):
             cmd = cmd.split(" ")
-            return str("CON "+ cmd[1] +"\\").encode("utf-8")
+            return str("CON " + cmd[1] + "\\").encode()
 
         elif str.startswith("A_PLAY"):
             cmd =cmd.split(" ")
-            return str("A_PLAY " + cmd[1]+ cmd[2] + cmd[3] +"\\").encode("utf-8")
+            return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + "\\").encode()
 
         elif str.startswith("D_PLAY"):
             cmd =cmd.split(" ")
-            return str("D_PLAY " + + cmd[1]+ cmd[2] + cmd[3] + "\\").encode("utf-8")
+            return str("D_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + "\\").encode()
 
         elif str.startswith("MOVE"):
             cmd = cmd.replace("MOVE ", "").partition(' ')
 
-            return str("MOVE "+ cmd[0] + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+            return str("MOVE " + cmd[0] + ' ' + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
         elif str.startswith("T_BOMB"):
             cmd =cmd.split(" ")
-            return str("T_BOMB " + cmd[1]  +"\\").encode("utf-8")
+            return str("T_BOMB " + cmd[1] + "\\").encode()
 
         elif str.startswith("A_BOMB"):
             cmd =cmd.split(" ")
-            return str("A_BOMB " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+            return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
         elif str.startswith("A_FRUIT"):
             cmd =cmd.split(" ")
-            return str("A_FRUIT " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
+            return str("A_FRUIT " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
         elif str.startswith("D_FRUIT"):
             cmd =cmd.split(" ")
-            return str("D_FRUIT " + cmd[1] + cmd[2]  +"\\").encode("utf-8")
-
+            return str("D_FRUIT " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
         return None;
-        
-        '''
-    def dec_command(sockServer, sock, msg)::
-        cmd = msg.decode("utf-8")
+
+
+    def dec_command(sockServer, sock, msg):
+        cmd = msg.decode()
 
         if cmd.startswith("CON"):
-            cmd =cmd.split(" ")
-            CON(sockServer, sock, cmd[1].replace('\n',''))
+            CON(nicknamePlayer)
             return True
         return;
-        '''
+
 
         '''
     def CON (sockServer, sock, nicknamePlayer):
@@ -186,7 +184,7 @@ class NetworkClientController:
         self.receiveCharacters(self.soc);
 
     def receiveBombs(self, s):
-        
+
 
     def receiveFruits(self, s):
 

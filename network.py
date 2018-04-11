@@ -16,10 +16,6 @@ class Command_Network:
         #Field
         ______
 
-        listSockets={}
-
-        model
-
         #Commands
         _________
 
@@ -42,12 +38,10 @@ class Command_Network:
         D_FRUIT <x> <y>
 
     '''
-    def __init__(self, socket, name, model, isServer):
+
+    def __init__(self, model, isServer):
         self.model = model;
-        self.listSockets={}
-        self.sockServer=
-
-
+        self.isServer = isServer;
 
     def enc_command(cmd):
         cmd.replace('\\','')
@@ -55,6 +49,10 @@ class Command_Network:
         if str.startswith("CON"):
             cmd = cmd.split(" ")
             return str("CON "+ cmd[1] +"\\").encode("utf-8")
+
+        elif str.startswith("MAP"):
+            cmd =cmd.split(" ")
+            return str("A_PLAY " + cmd[1]+  +"\\").encode("utf-8")
 
         elif str.startswith("A_PLAY"):
             cmd =cmd.split(" ")
@@ -117,9 +115,8 @@ class Command_Network:
 class NetworkServerController:
 
     def __init__(self, model, port):
-        self.model = model;
         self.port = port;
-        self.cmd = Command_Network()
+        self.cmd = Command_Network(model,True)
         self.soc = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
         self.soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1);
         self.soc.bind(('', port));
@@ -152,10 +149,9 @@ class NetworkServerController:
 class NetworkClientController:
 
     def __init__(self, model, host, port, nickname):
-        self.model = model;
         self.host = host;
         self.port = port;
-        self.cmd = Command_Network()
+        self.cmd = Command_Network(model,False)
         self.nickname = nickname;
         self.soc = None;
         try:

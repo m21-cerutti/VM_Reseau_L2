@@ -16,6 +16,10 @@ class Command_Network:
         #Field
         ______
 
+        self.model
+
+        self.isServer
+
         #Commands
         _________
 
@@ -132,6 +136,24 @@ class NetworkServerController:
         self.socks = {};
         self.socks[self.soc] = "SERVER";
 
+    def clientConnection(sockserv):
+        newSock, addr= sockserv.accept()
+        msg = newSock.recv(4096)
+        listcmd = self.cmd.dec_command(sockserv,sockserv,msg);
+        if (listcmd!=None && listcmd[0] == "CON"):
+            listSockets[newSock]= listcmd[1]
+            print("New connection")
+            print(addr)
+            self.sendMap(newSock);
+
+        else:
+            print ("Error command init");
+
+    def re_send(cmd):
+        for sock in self.socks:
+            if sock != self.sock:
+                sock.sendall(cmd)
+
     def sendCharacters(self, s):
         for char in self.socks:
             s.send(self.socks[char].encode());
@@ -158,7 +180,7 @@ class NetworkServerController:
         if sel[0]:
             for s in sel[0]:
                 if s is self.soc:
-                    self.sendMap(s.accept()[0]);
+                    clientConnection(s);
                 else:
                     msg = s.recv(4096);
                     if len(msg <= 0):

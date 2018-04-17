@@ -125,6 +125,7 @@ class Command_Network:
     Adapte le modèle et renvoi une liste de string avec les arguments de la commandes
     '''
     def dec_command(self, msg):
+        #FAIRE UNE BOUCLE POUR LE BUFFER
         cmd = msg.decode()
         cmd = cmd.replace('\\',' ')
         

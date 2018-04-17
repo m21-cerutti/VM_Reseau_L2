@@ -11,6 +11,7 @@ from model import *
 #                          AUXILLARY FUNCTION NETWORK                          #
 ################################################################################
 
+SIZE_BUFFER_NETWORK = 2056
 class Command_Network:
     '''
         #Field
@@ -80,23 +81,23 @@ class Command_Network:
         
         if cmd.startswith("CON"):
             cmd = cmd.split(" ")
-            return str("CON " + cmd[1] + "\\").encode()
+            return str("CON " + cmd[1] + " \\").encode()
 
         elif cmd.startswith("MAP"):
             cmd =cmd.split(" ")
-            return str("MAP " + cmd[1]  +"\\").encode("utf-8")
+            return str("MAP " + cmd[1]  +" \\").encode()
 
         elif cmd.startswith("A_PLAY"):
             cmd =cmd.split(" ")
-            return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + "\\").encode()
+            return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + " \\").encode()
 
         elif cmd.startswith("D_PLAY"):
             cmd =cmd.split(" ")
-            return str("D_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] ++ ' ' + cmd[4] + "\\").encode()
+            return str("D_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] ++ ' ' + cmd[4] + " \\").encode()
 
         elif cmd.startswith("MOVE"):
             cmd = cmd.split(' ')
-            return str("MOVE " + cmd[0] + ' ' + cmd[1] + ' ' + cmd[2]  + "\\").encode()
+            return str("MOVE " + cmd[0] + ' ' + cmd[1] + ' ' + cmd[2]  + " \\").encode()
 
         elif cmd.startswith("T_BOMB"):
             cmd =cmd.split(" ")
@@ -104,15 +105,15 @@ class Command_Network:
 
         elif cmd.startswith("A_BOMB"):
             cmd =cmd.split(" ")
-            return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
+            return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + " \\").encode()
 
         elif cmd.startswith("A_FRUIT"):
             cmd =cmd.split(" ")
-            return str("A_FRUIT " + cmd[1] + ' ' + cmd[2]  + ' ' + cmd[3]  +"\\").encode()
+            return str("A_FRUIT " + cmd[1] + ' ' + cmd[2]  + ' ' + cmd[3]  +" \\").encode()
 
         elif cmd.startswith("D_FRUIT"):
             cmd =cmd.split(" ")
-            return str("D_FRUIT " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3]  + "\\").encode()
+            return str("D_FRUIT " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3]  + " \\").encode()
         
         elif cmd.startswith("END"):
             cmd =cmd.split(" ")
@@ -125,64 +126,77 @@ class Command_Network:
     Adapte le modèle et renvoi une liste de string avec les arguments de la commandes
     '''
     def dec_command(self, msg):
-        #FAIRE UNE BOUCLE POUR LE BUFFER
-        cmd = msg.decode()
-        cmd = cmd.replace('\\',' ')
         
-        print ("DEC")
-        print (cmd)
-        print ()
+        listCmds = msg.decode()
+        listCmds = listCmds.split('\\')
+        print ("BUFFER")
+        print (listCmds)
         
-        if cmd.startswith("CON "):
-            cmd = cmd.split(' ')
-            self.CON(cmd[1])
-            return cmd
+        listValid =[]
 
-        elif cmd.startswith("MAP "):
-            cmd = cmd.split(' ')
-            self.model.load_map(cmd[1])
-            return cmd
+        while (listCmds != [] and listCmds[0] != ""):
+            
+            cmd = listCmds[0]
+            cmd = cmd.replace ('\\',' ')
+            print ("DEC")
+            print (cmd)
+            print ()
+            del listCmds[0]
+            
+            if cmd.startswith("CON "):
+                cmdtmp = cmd.split(' ')
+                self.CON(cmdtmp[1])
+                listValid.append(cmd)
 
-        elif cmd.startswith("MOVE "):
-            cmd = cmd.split(' ')
-            #self.MOVE(listSocket[sock], cmd[1], cmd[2])
-            return cmd
+            elif cmd.startswith("MAP "):
+                cmdtmp = cmd.split(' ')
+                self.model.load_map(cmdtmp[1])
+                listValid.append(cmd)
 
-        elif cmd.startswith("A_PLAY "):
-            cmd = cmd.split(' ')
-            #self.model.add_character(cmd[1])
-            return cmd
+            elif cmd.startswith("MOVE "):
+                cmdtmp = cmd.split(' ')
+                #self.MOVE(cmdtmp[1], cmdtmp[2])
+                listValid.append(cmd)
 
-        elif cmd.startswith("D_PLAY "):
-            cmd = cmd.split(' ')
-            #self.model.quit(cmd[1])
-            return cmd
+            elif cmd.startswith("A_PLAY "):
+                cmdtmp = cmd.split(' ')
+                #self.model.add_character(cmdtmp[1])
+                listValid.append(cmd)
 
-        elif cmd.startswith("T_BOMB "):
-            cmd = cmd.split(' ')
-            #self.T_BOMB(cmd[1])
-            return cmd
+            elif cmd.startswith("D_PLAY "):
+                cmdtmp = cmd.split(' ')
+                #self.model.quit(cmdtmp[1])
+                listValid.append(cmd)
 
-        elif cmd.startswith("A_BOMB "):
-            cmd = cmd.split(' ')
-           # self.model.drop_bomb(cmd[1])
-            return cmd
+            elif cmd.startswith("T_BOMB "):
+                cmdtmp = cmd.split(' ')
+                #self.T_BOMB(cmdtmp[1])
+                listValid.append(cmd)
 
-        elif cmd.startswith("A_FRUIT "):
-            cmd = cmd.split(' ')
-            self.A_FRUIT(int(cmd[1]), int(cmd[2]), int(cmd[3]))
-            return cmd
+            elif cmd.startswith("A_BOMB "):
+                cmdtmp = cmd.split(' ')
+               # self.model.drop_bomb(cmdtmp[1])
+                listValid.append(cmd)
 
-        elif cmd.startswith("D_FRUIT "):
-            cmd = cmd.split(' ')
-            #self.D_FRUIT(cmd[1], cmd[2])
-            return cmd
+            elif cmd.startswith("A_FRUIT "):
+                cmdtmp = cmd.split(' ')
+                self.A_FRUIT(int(cmdtmp[1]), int(cmdtmp[2]), int(cmdtmp[3]))
+                listValid.append(cmd)
+
+            elif cmd.startswith("D_FRUIT "):
+                cmdtmp = cmd.split(' ')
+                #self.D_FRUIT(cmdtmp[1], cmdtmp[2])
+                listValid.append(cmd)
+            
+            elif cmd.startswith("END "):
+                cmdtmp = cmd.split(' ')
+                return None
+            
+            else:
+                return None
+            
         
-        elif cmd.startswith("END "):
-            cmd = cmd.split(' ')
-            return cmd
-        
-        return None;
+        return listValid;
 
 
     def CON (self, nicknamePlayer):
@@ -219,10 +233,11 @@ class NetworkServerController:
     '''
     def clientConnection(self, sockserv):
         newSock, addr= sockserv.accept()
-        msg = newSock.recv(4096)
-        listcmd = self.cmd.dec_command(msg);
-        if (listcmd!=None and listcmd[0] == "CON"):
-            self.socks[newSock]= listcmd[1]
+        msg = newSock.recv(SIZE_BUFFER_NETWORK)
+        listcmd = self.cmd.dec_command(msg)
+        
+        if (listcmd!=None and listcmd[0].startswith("CON")):
+            self.socks[newSock]= listcmd[0].split(" ")[1]
             print("New connection")
             print(addr)
             
@@ -284,7 +299,7 @@ class NetworkServerController:
     Déconnecte un client
     ''' 
     def disconnectClient(self, s):
-        self.model.quit(self.socks[s]);
+        self.cmd.model.quit(self.socks[s]);
         del self.socks[s];
         s.close()
                       
@@ -297,9 +312,10 @@ class NetworkServerController:
                 if s is self.soc:
                     self.clientConnection(s);
                 else:
-                    msg = s.recv(4096);
-                    if len(msg <= 0):
+                    msg = s.recv(SIZE_BUFFER_NETWORK);
+                    if (len(msg) <= 0):
                         self.disconnectClient(s);
+        
         return True
 
 ################################################################################
@@ -338,15 +354,21 @@ class NetworkClientController:
             sys.exit(1);
         #Connection
         self.soc.send(self.cmd.enc_command(str("CON "+nickname)));
+
         
         #Decode map + objects + players
         msg = "\\"
         while (len(msg)>0):
-            msg = self.soc.recv(64)
+            msg = self.soc.recv(SIZE_BUFFER_NETWORK)
             cmd = self.cmd.dec_command(msg)
-            
-            if (cmd==None or cmd[0]=="END" ):
+
+            if (cmd==None):
                 break
+            
+            if (cmd!=None):
+                for c in cmd:
+                    if c.startswith("END"):
+                        break
             
             #self.cmd.model.load_map(self.soc.recv(64).decode());
             
@@ -378,12 +400,11 @@ class NetworkClientController:
         sel = select.select([self.soc], [], [], 0);
         if sel[0]:
             for s in sel[0]:
-                msg = s.recv(4096);
+                msg = s.recv(SIZE_BUFFER_NETWORK);
                 print (msg)
                 if (len(msg) <= 0):
                     print ("Error: Server has been disconnected")
                     s.close();
-                    
-        self.cmd.model.tick(dt);
+
         
         return True

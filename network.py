@@ -51,39 +51,39 @@ class Command_Network:
     def enc_command(self, cmd):
         cmd.replace('\\','')
 
-        if str.startswith("CON"):
+        if cmd.startswith("CON"):
             cmd = cmd.split(" ")
             return str("CON " + cmd[1] + "\\").encode()
 
-        elif str.startswith("MAP"):
+        elif cmd.startswith("MAP"):
             cmd =cmd.split(" ")
             return str("A_PLAY " + cmd[1]+  +"\\").encode("utf-8")
 
-        elif str.startswith("A_PLAY"):
+        elif cmd.startswith("A_PLAY"):
             cmd =cmd.split(" ")
             return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + "\\").encode()
 
-        elif str.startswith("D_PLAY"):
+        elif cmd.startswith("D_PLAY"):
             cmd =cmd.split(" ")
             return str("D_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + "\\").encode()
 
-        elif str.startswith("MOVE"):
+        elif cmd.startswith("MOVE"):
             cmd = cmd.split(' ')
             return str("MOVE " + cmd[0] + ' ' + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
-        elif str.startswith("T_BOMB"):
+        elif cmd.startswith("T_BOMB"):
             cmd =cmd.split(" ")
             return str("T_BOMB " + cmd[1] + "\\").encode()
 
-        elif str.startswith("A_BOMB"):
+        elif cmd.startswith("A_BOMB"):
             cmd =cmd.split(" ")
             return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
-        elif str.startswith("A_FRUIT"):
+        elif cmd.startswith("A_FRUIT"):
             cmd =cmd.split(" ")
             return str("A_FRUIT " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
-        elif str.startswith("D_FRUIT"):
+        elif cmd.startswith("D_FRUIT"):
             cmd =cmd.split(" ")
             return str("D_FRUIT " + cmd[1] + ' ' + cmd[2]  + "\\").encode()
 
@@ -95,51 +95,61 @@ class Command_Network:
 
         if cmd.startswith("CON "):
             cmd = cmd.split(' ')
-            CON(cmd[1])
+            self.CON(cmd[1])
+            return cmd
 
         elif cmd.startswith("MAP "):
             cmd = cmd.split(' ')
             self.model.load_map(cmd[1])
+            return cmd
 
         elif cmd.startswith("MOVE "):
             cmd = cmd.split(' ')
-            MOVE(listSocket[sock], cmd[1], cmd[2])
+            self.MOVE(listSocket[sock], cmd[1], cmd[2])
+            return cmd
 
         elif cmd.startswith("A_PLAY "):
             cmd = cmd.split(' ')
             self.model.add_character(cmd[1])
+            return cmd
 
         elif cmd.startswith("D_PLAY "):
             cmd = cmd.split(' ')
             self.model.quit(cmd[1])
+            return cmd
 
         elif cmd.startswith("T_BOMB "):
             cmd = cmd.split(' ')
-            T_BOMB(cmd[1])
+            self.T_BOMB(cmd[1])
+            return cmd
 
         elif cmd.startswith("A_BOMB "):
             cmd = cmd.split(' ')
             self.model.drop_bomb(cmd[1])
+            return cmd
 
         elif cmd.startswith("A_FRUIT "):
             cmd = cmd.split(' ')
-            A_FRUIT(cmd[1], cmd[2])
+            self.A_FRUIT(cmd[1], cmd[2])
+            return cmd
 
         elif cmd.startswith("D_FRUIT "):
             cmd = cmd.split(' ')
-            D_FRUIT(cmd[1], cmd[2])
-        return;
+            self.D_FRUIT(cmd[1], cmd[2])
+            return cmd
+        
+        return None;
 
         '''
     def re_send(listSocket, socketServ, cmd):   #server only
 
         return;
-
-    def CON (nicknamePlayer):
+        '''
+    def CON (self, nicknamePlayer):
         #create player
         return;
 
-        '''
+
 
 
 
@@ -160,20 +170,20 @@ class NetworkServerController:
         self.socks = {};
         self.socks[self.soc] = "SERVER";
 
-    def clientConnection(sockserv):
+    def clientConnection(self, sockserv):
         newSock, addr= sockserv.accept()
         msg = newSock.recv(4096)
         listcmd = self.cmd.dec_command(sockserv,sockserv,msg);
-        if (listcmd!=None && listcmd[0] == "CON"):
-            listSockets[newSock]= listcmd[1]
+        if (listcmd!=None and listcmd[0] == "CON"):
+            self.socks[newSock]= listcmd[1]
             print("New connection")
             print(addr)
             self.sendMap(newSock);
 
         else:
-            print ("Error command init");
+            print ("Error command init new player");
 
-    def re_send(cmd):
+    def re_send(self, cmd):
         for sock in self.socks:
             if sock != self.sock:
                 sock.sendall(cmd)
@@ -204,7 +214,7 @@ class NetworkServerController:
         if sel[0]:
             for s in sel[0]:
                 if s is self.soc:
-                    clientConnection(s);
+                    self.clientConnection(s);
                 else:
                     msg = s.recv(4096);
                     if len(msg <= 0):
@@ -245,22 +255,25 @@ class NetworkClientController:
         if self.soc is None:
             print("Error : can't open connection.\n");
             sys.exit(1);
-        self.model.load_map(self.soc.recv(64).decode());
-        self.soc.send(nickname.encode());
-        self.receiveCharacters(self.soc);
+        #Decode command map
+        self.soc.send(self.cmd.enc_command(str("CON "+nickname)));
+        print(self.soc.recv(64))
+        #self.cmd.model.load_map(self.soc.recv(64).decode());
+        #self.receiveCharacters(self.soc);
 
     def receiveBombs(self, s):
+        return
 
 
     def receiveFruits(self, s):
-
+        return
 
     def receiveCharacters(self, s):
         msg = s.recv(256);
         if len(msg) <= 0:
             return;
         else:
-
+            return
 
     # keyboard events
 

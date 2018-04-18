@@ -2,3 +2,8 @@ Mémo cmd windows
 cd C:\Users\Marc\Documents\1-Etude\2-Université de Bordeaux\Semestre 3\Projet réseau\VM_Reseau_L2
 python.exe ./bomber_server.py 7777 maps/map0
 python.exe ./bomber_client.py localhost 7777 Client
+
+Adresse IPv6 :	2620:9b::194f:a078
+
+	                                   
+python.exe ./bomber_client.py 2620:9b::194f:a078 7777 Client

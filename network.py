@@ -55,6 +55,11 @@ class Command_Network:
         """
         A_BOMB <pos X> <pos Y> 
         #model.bombs.append(Bomb(self.map, character.pos))
+
+        """
+        Drop Bomb par personnage
+        """
+        DP_BOMB <nicknamePlayer>
         
         """
         Ajoute un fruit
@@ -91,30 +96,22 @@ class Command_Network:
             cmd =cmd.split(" ")
             return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] +  ' ' + cmd[4] + ' ' + cmd[5] + " \\").encode()
 
-        elif cmd.startswith("D_PLAY"):
-            cmd =cmd.split(" ")
-            return str("D_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] + ' ' + cmd[4] + ' ' + cmd[5] + " \\").encode()
-
         elif cmd.startswith("MOVE"):
             cmd = cmd.split(' ')
-            return str("MOVE " + cmd[0] + ' ' + cmd[1] + ' ' + cmd[2]  + " \\").encode()
-
-        elif cmd.startswith("T_BOMB"):
-            cmd =cmd.split(" ")
-            return str("T_BOMB " + cmd[1] + "\\").encode()
+            return str("MOVE " + cmd[1] + ' ' + cmd[2] + " \\").encode()
 
         elif cmd.startswith("A_BOMB"):
             cmd =cmd.split(" ")
             return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + " \\").encode()
+        
+        elif cmd.startswith("DP_BOMB"):
+            cmd =cmd.split(" ")
+            return str("DP_BOMB " + cmd[1] + " \\").encode()
 
         elif cmd.startswith("A_FRUIT"):
             cmd =cmd.split(" ")
             return str("A_FRUIT " + cmd[1] + ' ' + cmd[2]  + ' ' + cmd[3]  +" \\").encode()
 
-        elif cmd.startswith("D_FRUIT"):
-            cmd =cmd.split(" ")
-            return str("D_FRUIT " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3]  + " \\").encode()
-        
         elif cmd.startswith("END"):
             cmd =cmd.split(" ")
             return str("END " + "\\").encode()
@@ -155,22 +152,15 @@ class Command_Network:
 
             elif cmd.startswith("MOVE "):
                 cmdtmp = cmd.split(' ')
-                #self.MOVE(cmdtmp[1], cmdtmp[2])
+                nickname = cmdtmp[1]
+                direction = int(cmdtmp[2])
+                if direction in DIRECTIONS:
+                    self.model.move_character(nickname, direction)
                 listValid.append(cmd)
 
             elif cmd.startswith("A_PLAY "):
                 cmdtmp = cmd.split(' ')
-                self.model.add_character(cmdtmp[1],bool(cmdtmp[2]),int(cmdtmp[3]),(int(cmdtmp[4]), int(cmdtmp[5])))
-                listValid.append(cmd)
-
-            elif cmd.startswith("D_PLAY "):
-                cmdtmp = cmd.split(' ')
-                #self.model.quit(cmdtmp[1])
-                listValid.append(cmd)
-
-            elif cmd.startswith("T_BOMB "):
-                cmdtmp = cmd.split(' ')
-                #self.T_BOMB(cmdtmp[1])
+                self.model.add_character(cmdtmp[1],bool(int(cmdtmp[2])),int(cmdtmp[3]),(int(cmdtmp[4]), int(cmdtmp[5])))
                 listValid.append(cmd)
 
             elif cmd.startswith("A_BOMB "):
@@ -178,16 +168,18 @@ class Command_Network:
                 self.model.bombs.append(Bomb(self.model.map, (int(cmdtmp[1]),int(cmdtmp[2]))))
                 listValid.append(cmd)
 
+            elif cmd.startswith("DP_BOMB "):
+                cmdtmp = cmd.split(' ')
+                nickname = cmdtmp[1]
+                self.model.drop_bomb(nickname)
+                listValid.append(cmd)
+           
+
             elif cmd.startswith("A_FRUIT "):
                 cmdtmp = cmd.split(' ')
                 self.model.add_fruit(int(cmdtmp[1]), (int(cmdtmp[2]), int(cmdtmp[3])))
                 listValid.append(cmd)
 
-            elif cmd.startswith("D_FRUIT "):
-                cmdtmp = cmd.split(' ')
-                #self.D_FRUIT(cmdtmp[1], cmdtmp[2])
-                listValid.append(cmd)
-            
             elif cmd.startswith("END"):
                 cmdtmp = cmd.split(' ')
                 listValid.append(cmd)
@@ -233,7 +225,6 @@ class NetworkServerController:
             self.socks[newSock]= listcmd[0].split(" ")[1]
             print("New connection")
             print(addr)
-
             
             # envoyer map, fruits, joueurs, bombes
             self.initMap(newSock);
@@ -250,8 +241,8 @@ class NetworkServerController:
     '''
     def re_send(self,sockSender, cmd):
         for sock in self.socks:
-            if sock != self.sock and sock != sockSender:
-                sock.sendall(cmd)
+            if sock != self.soc and sock != sockSender:
+                sock.sendall(self.cmd.enc_command(cmd))
                 
     '''
     Initialise les characters à envoyer
@@ -259,10 +250,11 @@ class NetworkServerController:
     def initCharacters(self, s):
         for char in self.cmd.model.characters:
             if (char.nickname == self.socks[s]):
-                #is_player = true
-                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"T"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))
+                #is_player = true, send for initialization to others = false
+                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))
+                self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])))
             else:
-                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"F"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))
+                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))
                 
     '''
     Initialise les fruits à envoyer
@@ -307,6 +299,9 @@ class NetworkServerController:
                     self.clientConnection(s);
                 else:
                     msg = s.recv(SIZE_BUFFER_NETWORK);
+                    listCmd = self.cmd.dec_command(msg)
+                    for cmd in listCmd:
+                        self.re_send(s, cmd)
                     if (len(msg) <= 0):
                         self.disconnectClient(s);
         
@@ -346,19 +341,17 @@ class NetworkClientController:
         if self.soc is None:
             print("Error : can't open connection.\n");
             sys.exit(1);
+            
         #Connection
         self.soc.send(self.cmd.enc_command(str("CON "+nickname)));
 
-        
         #Decode map + objects (fruits, bombs) + players
-
         stop = False
         while (not stop):
             
             msg = self.soc.recv(SIZE_BUFFER_NETWORK)
             listCmd = self.cmd.dec_command(msg)
 
-            
             if (listCmd==None):
                 break
             
@@ -377,19 +370,27 @@ class NetworkClientController:
 
     def keyboard_move_character(self, direction):
         print("=> event \"keyboard move direction\" {}".format(DIRECTIONS_STR[direction]))
-        # ...
+        
+        self.soc.send(self.cmd.enc_command(str("MOVE "+self.cmd.model.player.nickname+" "+str(direction))));
+            
+        #SOLO
         if not self.cmd.model.player: return True
         nickname = self.cmd.model.player.nickname
         if direction in DIRECTIONS:
             self.cmd.model.move_character(nickname, direction)
+        
         return True
 
     def keyboard_drop_bomb(self):
         print("=> event \"keyboard drop bomb\"")
+        
+        self.soc.send(self.cmd.enc_command(str("DP_BOMB "+self.cmd.model.player.nickname)));
+        
+        #SOLO
         if not self.cmd.model.player: return True
-        #...
         nickname = self.cmd.model.player.nickname
         self.cmd.model.drop_bomb(nickname)
+        
         return True
 
     # time event
@@ -399,7 +400,7 @@ class NetworkClientController:
         if sel[0]:
             for s in sel[0]:
                 msg = s.recv(SIZE_BUFFER_NETWORK);
-                print (msg)
+                listCmd = self.cmd.dec_command(msg)
                 if (len(msg) <= 0):
                     print ("Error: Server has been disconnected")
                     s.close();

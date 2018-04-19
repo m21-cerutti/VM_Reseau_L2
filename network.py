@@ -313,7 +313,7 @@ class NetworkServerController:
         if len(sys.argv) == 3:
             s.sendall(self.cmd.enc_command(str("MAP "+sys.argv[2])));
         else:
-            s.sendall(DEFAULT_MAP.encode());
+            s.sendall(self.cmd.enc_command(str("MAP "+DEFAULT_MAP)));
         return
     
     '''

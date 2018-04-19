@@ -1,0 +1,199 @@
+\documentclass[a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\usepackage[francais]{babel}
+\usepackage{graphicx}
+\usepackage{xcolor}%				for colors
+\usepackage{comment}%				for comment
+\usepackage{upquote}%				for quote ''
+\usepackage{hyperref}%				for HyperText
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+\urlstyle{same}
+
+\usepackage[toc,page]{appendix}
+
+\usepackage{verbatim}%				Insertion de code
+\usepackage{framed}%				Pour boite multipage
+\usepackage{moreverb}%				Pour extension verbatim
+
+\usepackage{listingsutf8}%				pour le code informatique
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+	tabsize=4,
+    extendedchars=true,
+    breaklines=true,
+    keepspaces=true,
+	inputencoding=utf8,
+    extendedchars=true,
+    literate=%
+                {é}{{\'e}}{1}%
+                {è}{{\`e}}{1}%
+                {à}{{\`a}}{1}%
+                {ç}{{\c{c}}}{1}%
+                {œ}{{\oe}}{1}%
+                {ù}{{\`u}}{1}%
+                {É}{{\'E}}{1}%
+                {È}{{\`E}}{1}%
+                {À}{{\`A}}{1}%
+                {Ç}{{\c{C}}}{1}%
+                {Œ}{{\OE}}{1}%
+                {Ê}{{\^E}}{1}%
+                {ê}{{\^e}}{1}%
+                {î}{{\^i}}{1}%
+                {ô}{{\^o}}{1}%
+                {û}{{\^u}}{1}%
+                {ë}{{\¨{e}}}1
+                {û}{{\^{u}}}1
+                {â}{{\^{a}}}1
+                {Â}{{\^{A}}}1
+                {Î}{{\^{I}}}1
+}
+\lstdefinestyle{CMakeStyle}{
+    language={},
+  	backgroundcolor=\color{backgroundColour},
+    numberstyle=\tiny\color{mGray},
+    basicstyle=\footnotesize,
+    numbers=left,
+    numbersep=5pt,
+  	frame=single,
+}
+
+\lstdefinestyle{MakefileStyle}{
+    backgroundcolor=\color{backgroundColour},
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+   	stringstyle=\color{mPurple},
+    numberstyle=\tiny\color{mGray},
+    basicstyle=\footnotesize,
+    numbers=left,
+    numbersep=5pt,
+    language=[gnu] make
+}
+
+\lstdefinestyle{PythonStyle}{
+    backgroundcolor=\color{backgroundColour},
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    numbers=left,
+    numbersep=5pt,
+    language=Python
+}
+
+\title{Rapport pour Projet Réseau  TM1A}
+\author{AMEEUW Vincent\and CERUTTI Marc}
+
+%**************************************************************************
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\center
+\'Ebauche de rapport reseau \textit{Bomberman}\\
+\end{abstract}
+
+%Table
+
+\tableofcontents
+
+\newpage
+
+%DOC
+\part{Preambule}
+
+\begin{normalsize}
+Vous devez rendre ici deux fichiers :
+
+    un rapport PDF (de 5 à 10 pages max, police 12) décrivant votre projet, organisé comme cela :
+        introduction rapide au projet
+        vue d'ensemble fonctionnelle : de ce qui marche parfaitement, de ce qui ne marche pas parfaitement, des bonus et de ce qui reste à faire, ... 
+        architecture et implementation : vous prendrez soin de décrire les choix techniques que vous avez effectués (TCP/UDP, select/thread, recv non bloquant, acquittement, ...), ainsi que de décrire votre protocole réseau au moyen d'un formalisme de votre choix (shéma, algorithme en pseudo-langage, automate, ...). 
+        bilan du projet
+    une archive ZIP contenant tous les fichiers sources et ressources (images, ...) utiles au bon fonctionnement de votre projet, ainsi qu'un README détaillant comment lancer et jouer avec votre programme.
+
+La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}.
+
+
+\end{normalsize}
+
+\newpage
+\part{Projet reseau}
+
+\newpage
+
+\part{Annexes}
+
+\section{Documentation \LaTeX}
+
+\href{http://www.babafou.eu.org/Apprends_LaTeX/Apprends_LaTeX.pdf}{Doc \LaTeX , exhaustive}
+
+\textbf{http://www.babafou.eu.org/Apprends\_LaTeX/Apprends\_LaTeX.pdf\\}
+
+\href{https://fr.sharelatex.com/learn/Hyperlinks}{Doc \LaTeX , HYPERTEXT}
+
+\textbf{http://www.babafou.eu.org/Apprends\_LaTeX/Apprends\_LaTeX.pdf\\}
+
+\href{ftp://ftp.dante.de/tex-archive/info/guide-latex-fr/Guide_FR.pdf}{Doc \LaTeX , initiation}
+
+\textbf{http://www.babafou.eu.org/Apprends\_LaTeX/Apprends\_LaTeX.pdf\\}
+
+\href{https://fr.wikibooks.org/wiki/LaTeX/Options_de_mise_en_forme_avanc%C3%A9es#Couleur}{Doc \LaTeX , couleur}
+
+\textbf{https://fr.wikibooks.org/wiki/LaTeX/Options\_de\_mise\_en\_forme\_avanc\
+\%C3\%A9es\#Couleur\\}
+
+\href{http://pgoutet.free.fr/latex/seance_9/seance_9-bis.pdf}{Doc \LaTeX , présentation code source}
+
+\textbf{http://pgoutet.free.fr/latex/seance\_9/seance\_9-bis.pdf}
+
+\href{http://www.latex-howto.be/files/LaTeX-HowTo-ch6.pdf}{Doc \LaTeX , mise en page}
+
+\textbf{http://www.latex-howto.be/files/LaTeX-HowTo-ch6.pdf\\}
+
+
+\href{https://tex.stackexchange.com/questions/24528/having-problems-with-listings-and-utf-8-can-it-be-fixed}{Doc \LaTeX , Probleme UTF8 et listing}
+
+\textbf{https://tex.stackexchange.com/questions/24528/having-problems-with-listings-and-utf-8-can-it-be-fixed}
+
+\href{https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings}{Doc \LaTeX , doc listing}
+
+\textbf{https://en.wikibooks.org/wiki/LaTeX/Source\_Code\_Listings\\}
+
+\href{https://tex.stackexchange.com/questions/348651/c-code-to-add-in-the-document
+}{Doc \LaTeX , code mise en page}
+
+\textbf{https://tex.stackexchange.com/questions/348651/c-code-to-add-in-the-document\\}
+
+\href{https://tex.stackexchange.com/questions/195536/what-can-i-do-if-a-listing-is-too-wide-to-fit-in-my-two-column-document
+}{Doc \LaTeX , code mise en page}
+
+\textbf{https://tex.stackexchange.com/questions/195536/what-can-i-do-if-a-listing-is-too-wide-to-fit-in-my-two-column-document\\}
+
+
+\newpage
+\section{Code Source}
+
+\subsection{Network.py} \label{network.py}
+\lstinputlisting[style=PythonStyle]{network.py}%firstline=1,lastline=2,
+
+
+\end{document}

@@ -11,16 +11,18 @@ from model import *
 #                          AUXILLARY FUNCTION NETWORK                          #
 ################################################################################
 
+#Size taken to the socket's buffer
 SIZE_BUFFER_NETWORK = 2056
+
+
 class Command_Network:
+
+    def __init__(self, model, isServer):
+        self.model = model;
+        self.isServer = isServer;
+
+    
     '''
-        #Field
-        ______
-
-        self.model
-
-        self.isServer
-
         #Commands
         _________
         """
@@ -78,13 +80,9 @@ class Command_Network:
 
 
     '''
-
-    def __init__(self, model, isServer):
-        self.model = model;
-        self.isServer = isServer;
-
     '''
     Encode les commandes pour l'envoi réseau.
+    En cas de commande inconnu, retourne None.
     '''
     def enc_command(self, cmd):
         cmd.replace('\\','')
@@ -138,6 +136,7 @@ class Command_Network:
     '''
     Decode les commandes.
     Adapte le modèle et renvoi une liste de string correspondant aux commandes.
+    Return None en cas de commandes inconnus.
     '''
     def dec_command(self, msg):
         
@@ -200,7 +199,6 @@ class Command_Network:
                 self.model.drop_bomb(nickname)
                 listValid.append(cmd)
            
-
             elif cmd.startswith("A_FRUIT "):
                 cmdtmp = cmd.split(' ')
                 self.model.add_fruit(int(cmdtmp[1]), (int(cmdtmp[2]), int(cmdtmp[3])))
@@ -209,7 +207,6 @@ class Command_Network:
             elif cmd.startswith("END"):
                 cmdtmp = cmd.split(' ')
                 listValid.append(cmd)
-
             
             else:
                 return None

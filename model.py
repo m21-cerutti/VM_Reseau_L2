@@ -250,7 +250,8 @@ class Model:
             self.bombs.append(Bomb(self.map, character.pos))
             character.disarmed = DISARMED
         print("=> drop bomb at position ({},{})".format(character.pos[X], character.pos[Y]))
-        
+
+    #return true if the aimed case is a bomb
     def colliderBomb(self, chara, direction, bomb):
         # move right
         if direction == DIRECTION_RIGHT:

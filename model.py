@@ -21,7 +21,6 @@ DIRECTIONS = [DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_UP, DIRECTION_DOWN]
 DIRECTIONS_STR = ["left", "right", "up", "down"]
 
 # map
-BOMBS= 'b'
 WALLS = ('w', 'x', 'z')
 BACKGROUNDS = ('0', '1', '2')
 DEFAULT_MAP = "maps/map0"
@@ -123,9 +122,6 @@ class Character:
         self.direction = DIRECTION_RIGHT
 
     def move(self, direction):
-        '''
-                #RAJOUT IN BOMBS
-        '''
         # move right
         if direction == DIRECTION_RIGHT:
             if self.pos[X] < (self.map.width - 1):
@@ -252,20 +248,45 @@ class Model:
             sys.exit(1)
         if character.disarmed == 0:
             self.bombs.append(Bomb(self.map, character.pos))
-            '''
-                #RAJOUT IN MAPS BOMBS
-            '''
             character.disarmed = DISARMED
         print("=> drop bomb at position ({},{})".format(character.pos[X], character.pos[Y]))
-
+        
+    def colliderBomb(self, chara, direction, bomb):
+        # move right
+        if direction == DIRECTION_RIGHT:
+            if (chara.pos[X] + 1,chara.pos[Y]) == bomb.pos:
+                return True
+        # move left
+        elif direction == DIRECTION_LEFT:
+            if (chara.pos[X] - 1,chara.pos[Y]) == bomb.pos:
+                return True
+        # move up
+        elif direction == DIRECTION_UP:
+            if (chara.pos[X],chara.pos[Y] - 1) == bomb.pos:
+                return True
+        # move down
+        elif direction == DIRECTION_DOWN:
+            if (chara.pos[X],chara.pos[Y] + 1) == bomb.pos:
+                return True
+            
+        return False;
+    
     # move a character
     def move_character(self, nickname, direction):
         character = self.look(nickname)
         if not character:
             print("Error: nickname \"{}\" not found!".format(nickname))
             sys.exit(1)
-        character.move(direction)
-        print("=> move {} \"{}\" at position ({},{})".format(DIRECTIONS_STR[direction], nickname, character.pos[X], character.pos[Y]))
+            
+        validBombMove = True
+        for bomb in self.bombs:
+            if(self.colliderBomb(character, direction, bomb)):
+                validBombMove= False
+                break
+                
+        if validBombMove :
+            character.move(direction)
+            print("=> move {} \"{}\" at position ({},{})".format(DIRECTIONS_STR[direction], nickname, character.pos[X], character.pos[Y]))
 
     # update model at each clock tick
     def tick(self, dt):
@@ -273,9 +294,6 @@ class Model:
         for bomb in self.bombs:
             bomb.tick(dt)
             if bomb.countdown == -1:
-                '''
-                #REMOVE BOM FROM MAP
-                '''
                 self.bombs.remove(bomb)
 
         # update characters and eat fruits

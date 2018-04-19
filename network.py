@@ -137,7 +137,7 @@ class Command_Network:
 
     '''
     Decode les commandes.
-    Adapte le modèle et renvoi une liste de string avec les arguments de la commandes
+    Adapte le modèle et renvoi une liste de string correspondant aux commandes.
     '''
     def dec_command(self, msg):
         

@@ -3,7 +3,7 @@ cd C:\Users\Marc\Documents\1-Etude\2-Université de Bordeaux\Semestre 3\Projet ré
 python.exe ./bomber_server.py 7777 maps/map0
 python.exe ./bomber_client.py localhost 7777 Client
 
-Adresse IPv6 :	2a01:e35:2421:cc30:2425:8fcd:6382:ed1b/128
+Adresse IPv4 :	87.231.21.100
 	                                   
 cd C:\Users\Marc\Documents\1-Etude\2-Université de Bordeaux\Semestre 3\Projet réseau\VM_Reseau_L2	                                   
-python.exe ./bomber_client.py 2620:9b::194f:a078 7777 Client
+python.exe ./bomber_client.py 87.231.21.100 7777 Client

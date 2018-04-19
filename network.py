@@ -211,7 +211,6 @@ class Command_Network:
             else:
                 return None
             
-        
         return listValid;
 
 

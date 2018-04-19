@@ -24,10 +24,19 @@ class Command_Network:
         #Commands
         _________
         """
-        Finit les transmissions pour les listes d'objets,
-        permet aussi la déconnection (à voire)
+        Finit les transmissions pour les listes d'objets.
         """
         END
+
+        """
+        Envoie un message à afficher
+        """
+        MSG <msg>
+
+        """
+        Envoie une erreur à afficher et ferme le client qui le reçoit.
+        """
+        ERROR <msg>
         
         """
         Connection d'un joueur avec son nom.
@@ -88,6 +97,14 @@ class Command_Network:
             cmd = cmd.split(" ")
             return str("CON " + cmd[1] + " \\").encode()
 
+        elif cmd.startswith("MSG"):
+            cmd = cmd.partition(" ")
+            return str("MSG " + cmd[2] + " \\").encode()
+
+        elif cmd.startswith("ERROR"):
+            cmd = cmd.partition(" ")
+            return str("ERROR " + cmd[2] + " \\").encode()
+
         elif cmd.startswith("MAP"):
             cmd =cmd.split(" ")
             return str("MAP " + cmd[1]  +" \\").encode()
@@ -142,9 +159,18 @@ class Command_Network:
             
             if cmd.startswith("CON "):
                 cmdtmp = cmd.split(' ')
-                self.model.add_character(cmdtmp[1], False)
+                listValid.append(cmd)
+                
+            elif cmd.startswith("MSG "):
+                cmdtmp = cmd.partition(' ')
+                print (cmdtmp[2])
                 listValid.append(cmd)
 
+            elif cmd.startswith("ERROR "):
+                cmdtmp = cmd.partition(' ')
+                print ("ERROR : "+ cmdtmp[2])
+                sys.exit(1)
+                
             elif cmd.startswith("MAP "):
                 cmdtmp = cmd.split(' ')
                 self.model.load_map(cmdtmp[1])
@@ -219,19 +245,31 @@ class NetworkServerController:
     def clientConnection(self, sockserv):
         newSock, addr= sockserv.accept()
         msg = newSock.recv(SIZE_BUFFER_NETWORK)
+        
         listcmd = self.cmd.dec_command(msg)
         
         if (listcmd!=None and listcmd[0].startswith("CON")):
-            self.socks[newSock]= listcmd[0].split(" ")[1]
-            print("New connection")
-            print(addr)
-            
-            # envoyer map, fruits, joueurs, bombes
-            self.initMap(newSock);
-            self.initFruits(newSock)
-            self.initBombs(newSock)
-            self.initCharacters(newSock)
-            newSock.send(self.cmd.enc_command(str("END ")))
+            nick= listcmd[0].split(" ")[1]
+            validNick = True
+            for s in self.socks:
+                if self.socks[s]== nick:
+                    print ("Error command init new player, name already use.")
+                    newSock.send(self.cmd.enc_command(str("ERROR command init new player, name already use.")))
+                    validNick = False
+                    newSock.close();
+                    
+            if validNick :
+                self.socks[newSock]= nick
+                self.cmd.model.add_character(nick, False)
+                print("New connection")
+                print(addr)
+                
+                # envoyer map, fruits, joueurs, bombes
+                self.initMap(newSock);
+                self.initFruits(newSock)
+                self.initBombs(newSock)
+                self.initCharacters(newSock)
+                newSock.send(self.cmd.enc_command(str("END ")))
         else:
             print ("Error command init new player")
             newSock.close();
@@ -350,10 +388,16 @@ class NetworkClientController:
         while (not stop):
             
             msg = self.soc.recv(SIZE_BUFFER_NETWORK)
+            if len(msg )<= 0 :
+                print ("Brutal interruption of the connection.")
+                sys.exit(1)
+                
             listCmd = self.cmd.dec_command(msg)
 
             if (listCmd==None):
-                break
+                stop = True
+                print ("Unknow command give by the server, maybe it have not the same version.")
+                sys.exit(1)
             
             for c in listCmd:
                 if c.startswith("END"):
@@ -400,10 +444,13 @@ class NetworkClientController:
         if sel[0]:
             for s in sel[0]:
                 msg = s.recv(SIZE_BUFFER_NETWORK);
-                listCmd = self.cmd.dec_command(msg)
+                
                 if (len(msg) <= 0):
                     print ("Error: Server has been disconnected")
                     s.close();
+                    sys.exit(1)
+
+                listCmd = self.cmd.dec_command(msg)
 
         
         return True

@@ -83,12 +83,12 @@ class Fruit:
 ### Class Bomb ###
 
 class Bomb:
-    def __init__(self, m, pos):
+    def __init__(self, m, pos, countdown = COUNTDOWN):
         self.map = m
         self.pos = pos
         self.max_range = MAX_RANGE
-        self.countdown = COUNTDOWN
-        self.time_to_explode = (COUNTDOWN+1)*1000-1 # in ms
+        self.countdown = countdown
+        self.time_to_explode = (countdown+1)*1000-1 # in ms
         # compute bomb range
         for xmax in range(self.pos[X], self.pos[X]+self.max_range+1):
             if xmax >= m.width or self.map.array[self.pos[Y]][xmax] not in BACKGROUNDS: break

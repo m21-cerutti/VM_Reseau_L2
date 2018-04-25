@@ -64,8 +64,7 @@ class Command_Network:
         """
         Ajoute une bombe
         """
-        A_BOMB <pos X> <pos Y> 
-        #model.bombs.append(Bomb(self.map, character.pos))
+        A_BOMB <pos X> <pos Y> <countdown>
 
         """
         Drop Bomb par personnage
@@ -117,7 +116,7 @@ class Command_Network:
 
         elif cmd.startswith("A_BOMB"):
             cmd =cmd.split(" ")
-            return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + " \\").encode()
+            return str("A_BOMB " + cmd[1] + ' ' + cmd[2]  + ' ' + cmd[3]+ " \\").encode()
         
         elif cmd.startswith("DP_BOMB"):
             cmd =cmd.split(" ")
@@ -193,7 +192,7 @@ class Command_Network:
 
             elif cmd.startswith("A_BOMB "):
                 cmdtmp = cmd.split(' ')
-                self.model.bombs.append(Bomb(self.model.map, (int(cmdtmp[1]),int(cmdtmp[2]))))
+                self.model.bombs.append(Bomb(self.model.map, int(cmdtmp[1]),int(cmdtmp[3])))
                 listValid.append(cmd)
 
             elif cmd.startswith("DP_BOMB "):
@@ -308,7 +307,7 @@ class NetworkServerController:
     '''
     def initBombs(self, s):
         for bomb in self.cmd.model.bombs:
-            s.send(self.cmd.enc_command(str("A_BOMB "+bomb.pos[X]+" "+bomb.pos[Y])));
+            s.send(self.cmd.enc_command(str("A_BOMB "+str(bomb.pos[X])+" "+str(bomb.pos[Y])+" "+str(bomb.countdown))))
         return
     
     '''

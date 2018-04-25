@@ -293,7 +293,7 @@ class NetworkServerController:
             if (char.nickname == self.socks[s]):
                 #is_player = true, send for initialization to others = false
                 s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
-                self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])))
+                self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health)))
             else:
                 s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))
                 

@@ -180,7 +180,8 @@ class Command_Network:
                 nickname = cmdtmp[1]
                 direction = int(cmdtmp[2])
                 if direction in DIRECTIONS:
-                    self.model.move_character(nickname, direction)
+                    try:
+                        self.model.move_character(nickname, direction)
                 listValid.append(cmd)
 
             elif cmd.startswith("A_PLAY "):
@@ -196,7 +197,8 @@ class Command_Network:
             elif cmd.startswith("DP_BOMB "):
                 cmdtmp = cmd.split(' ')
                 nickname = cmdtmp[1]
-                self.model.drop_bomb(nickname)
+                try:
+                    self.model.drop_bomb(nickname)
                 listValid.append(cmd)
            
             elif cmd.startswith("A_FRUIT "):

@@ -179,9 +179,9 @@ class Command_Network:
             
             cmd = listCmds[0]
             cmd = cmd.replace ('\\',' ')
-            print ("DEC")
-            print (cmd)
-            print ()
+            #print ("DEC")
+            #print (cmd)
+            #print ()
             del listCmds[0]
             
             if cmd.startswith("CON "):

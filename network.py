@@ -179,9 +179,9 @@ class Command_Network:
             
             cmd = listCmds[0]
             cmd = cmd.replace ('\\',' ')
-            #print ("DEC")
-            #print (cmd)
-            #print ()
+            print ("DEC")
+            print (cmd)
+            print ()
             del listCmds[0]
             
             if cmd.startswith("CON "):
@@ -247,12 +247,12 @@ class Command_Network:
                 else:
                     listValid.append(str("KILL "+cmdtmp[1]))
                     pass
-                listValid.append(cmd)
                 
             elif cmd.startswith("KILL ") or cmd.startswith("QUIT "):
                 cmdtmp = cmd.split(' ')
                 try:
                     self.model.kill_character(cmdtmp[1]);
+                    print (cmd)
                 except:
                     pass
                         
@@ -334,7 +334,8 @@ class NetworkServerController:
                     sock.sendall(self.cmd.enc_command(cmd))
                 except:
                     print (self.socks[sock])
-                    print("Error client connection close.")
+                    print (cmd)
+                    print("Error message not have been sent.")
                 
     '''
     Initialise les characters à envoyer
@@ -377,11 +378,13 @@ class NetworkServerController:
     Déconnecte un client et renvoie le nom du joueur à supprimer
     ''' 
     def disconnectClient(self, s):
-        nick = self.socks[s]
-        self.cmd.model.quit(nick);
-        del self.socks[s];
-        s.close()
-        return nick
+        if s in self.socks:
+            nick = self.socks[s]
+            self.cmd.model.quit(nick);
+            s.close()
+            self.socks.pop(s)
+            self.re_send(s, str("KILL "+ nick))
+            
                       
     # time event
 
@@ -391,27 +394,33 @@ class NetworkServerController:
             for s in sel[0]:
                 if s is self.soc:
                     self.clientConnection(s);
-                else:
+                    
+                elif s in self.socks:
+                    msg =b""
                     try:
                         msg = s.recv(SIZE_BUFFER_NETWORK);
                     except:
                         print ("Error interuption")
                         print("Connection client close.")
                         self.disconnectClient(s)
+                        break
                         
                     if (len(msg) <= 0):
-                        print ("Error interuption")
+                        print ("Error message empty.")
                         self.disconnectClient(s)
+                        break
                         
                     else:
                         listCmd = self.cmd.dec_command(msg)
                         for cmd in listCmd:
                             if cmd.startswith("QUIT"):
-                                 nick = self.disconnectClient(s)
-                                 self.re_send(s, str("KILL "+ nick))
+                                 self.disconnectClient(s)
                                  break
                             else:
                                 self.re_send(s, cmd)
+                    
+                    for char in self.cmd.model.characters:
+                         self.re_send(s ,str("S_LIFE "+str(char.nickname)+" "+str(char.health)));
                                 
                     
         
@@ -465,7 +474,7 @@ class NetworkClientController:
             
             msg = self.soc.recv(SIZE_BUFFER_NETWORK)
             if len(msg )<= 0 :
-                print ("Brutal interruption of the connection.")
+                print ("Brutal interruption of the connection during the chargement of the map.")
                 sys.exit(1)
                 
             listCmd = self.cmd.dec_command(msg)
@@ -488,6 +497,7 @@ class NetworkClientController:
         print("=> event \"quit\"")
         if not self.cmd.model.player: return False
         self.soc.sendall(self.cmd.enc_command(str("QUIT "+self.cmd.model.player.nickname)))
+        sys.exit()
         return False
 
     def keyboard_move_character(self, direction):
@@ -531,11 +541,14 @@ class NetworkClientController:
                     sys.exit(1)
                     
                 if (len(msg) <= 0):
-                    print ("Error: Server has been disconnected")
+                    print ("Error: message empty, server has been disconnected")
                     s.close();
                     sys.exit(1)
                     
                 listCmd = self.cmd.dec_command(msg)
+                if (listCmd==None):
+                    print ("Unknow command give by the server, maybe it have not the same version.")
+                    sys.exit(1)
                 
         if self.cmd.model.player != None :
             self.soc.sendall(self.cmd.enc_command(str("S_LIFE "+str(self.cmd.model.player.nickname)+" "+str(self.cmd.model.player.health))));

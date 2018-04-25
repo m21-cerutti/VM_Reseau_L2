@@ -9,14 +9,6 @@
 \usepackage{xcolor}%				for colors
 \usepackage{comment}%				for comment
 \usepackage{upquote}%				for quote ''
-\usepackage{hyperref}%				for HyperText
-\hypersetup{
-    colorlinks=true,
-    linkcolor=black,
-    filecolor=magenta,
-    urlcolor=cyan,
-}
-\urlstyle{same}
 
 \usepackage[toc,page]{appendix}
 
@@ -76,22 +68,60 @@
     language=Python
 }
 
-\title{Rapport pour Projet Réseau  TM1A}
+\usepackage{hyperref}%				for HyperText
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+\urlstyle{same}
+
+\title{Projet réseau  TM1A}
 \author{AMEEUW Vincent\and CERUTTI Marc}
+\date{\today}
 
 %**************************************************************************
 
+
+
 \begin{document}
 
-\maketitle
 
-\begin{abstract}
-\center
-\'Ebauche de rapport reseau \textit{Bomberman}\\
-\end{abstract}
+\makeatletter
+  \begin{titlepage}
+  \centering
+      {\large \textsc{Université de Bordeaux}}\\
+      \textsc{Licence informatique}\\
+    \vspace{1cm}
+      \includegraphics[width=0.5\textwidth]{IMG_Latex/ubx-logo.png}\\
+	\vspace{2cm}
+       
+\begin{center}
+	{\large\textbf{	\@date}}\\
+	\vspace{15mm}
+	
+    {\Huge   Rapport\\
+    \vspace{5mm}
+    \textbf{\@title}\\}
+    
+    \vspace{15mm}
+    {\large AMEEUW Vincent \\ CERUTTI Marc} \\
+    
+    \vspace{15mm}
+	\begin{abstract}
+	\center
+	Rapport pour le projet de l'enseignement \\'4TIN401U - Réseaux Info L2' (2017 - 2018) sur le jeu \textit{Bomberman}\\
+	\end{abstract}
+\end{center}
+       
+	
+  \end{titlepage}
+\makeatother
+
 
 %Table
-
+\cleardoublepage
 \tableofcontents
 
 \newpage

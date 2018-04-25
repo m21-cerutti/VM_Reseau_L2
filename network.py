@@ -375,9 +375,12 @@ class NetworkClientController:
         if self.soc is None:
             print("Error : can't open connection.\n");
             sys.exit(1);
-            
+
+        print ("Connection to server open.")
+
         #Connection
         self.soc.send(self.cmd.enc_command(str("CON "+nickname)));
+	print ("Send request game ...")
 
         #Decode map + objects (fruits, bombs) + players
         stop = False

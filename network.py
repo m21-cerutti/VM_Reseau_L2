@@ -182,6 +182,7 @@ class Command_Network:
                     try:
                         self.model.move_character(nickname, direction)
                     except:
+                        self.enc_command(str("MSG You are dead !!"))
                         pass
                 listValid.append(cmd)
 
@@ -201,6 +202,7 @@ class Command_Network:
                 try:
                     self.model.drop_bomb(nickname)
                 except:
+                    self.enc_command(str("MSG You are dead !!"))
                     pass
                 listValid.append(cmd)
            

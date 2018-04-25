@@ -25,57 +25,74 @@ class Command_Network:
     '''
         #Commands
         _________
-        """
-        Finit les transmissions pour les listes d'objets.
-        """
+        
+        #End for big transmissions with loops.
         END
 
-        """
-        Envoie un message à afficher
-        """
+        #Send a message to the client
         MSG <msg>
 
-        """
-        Envoie une erreur à afficher et ferme le client qui le reçoit.
-        """
+        #Send error and close the client
         ERROR <msg>
         
-        """
-        Connection d'un joueur avec son nom.
-        """
+        #Connection player
         CON <nicknamePlayer>
         
-        """
-        Transmission de la map à charger
-        """
+        #Transmit map
         MAP <namemap>
         
-        """
-        Déplace le joueur par son nom
-        """
+        #Move player
         MOVE <nicknamePlayer> <direction>
         
-        """
-        Ajoute un joueur
-        """
-        #player
+        #Add player
         A_PLAY <nicknamePlayer> <isplayer> <kind> <posX> <posY> <health>
         
-        """
-        Ajoute une bombe
-        """
-        A_BOMB <pos X> <pos Y> <countdown>
+        #Add bomb
+        A_BOMB <pos X> <pos Y> <range> <countdown>
 
-        """
-        Drop Bomb par personnage
-        """
-        DP_BOMB <nicknamePlayer>
+        #Drop Bomb
+        DP_BOMB <nicknamePlayer> <range> <countdown>
         
-        """
-        Ajoute un fruit
-        """
-        #fruit
+        #Add fruit
         A_FRUIT <kind> <pos X> <pos Y>
+
+        #Synchronisation of life
+        S_LIFE <nicknamePlayer> <health>
+
+        #Kill player
+        KILL <nicknamePlayer>
+
+        #Disconnection of the client
+        QUIT <nicknamePlayer>
+        
+        #TOADD
+        -system afk
+        -send map
+        -bonus
+
+        _______
+        BONUS:
+     
+        Fruit augmentant
+        -degats
+        -rangeBomb
+        -immunity
+
+        chat pas content, si on le touche on perd de la vie
+        
+        class cat
+        -pos
+        -countdown
+        -damage
+        -probability
+        +fct move (change direction if collision wall or 3 move)
+        +fct tick
+
+        model
+        -activation_cat
+
+        Network
+        -CAT <posx> <posy>
 
 
     '''
@@ -86,9 +103,9 @@ class Command_Network:
     def enc_command(self, cmd):
         cmd.replace('\\','')
 
-        print ("ENC")
-        print (cmd)
-        print ()
+        #print ("ENC")
+        #print (cmd)
+        #print ()
         
         if cmd.startswith("CON"):
             cmd = cmd.split(" ")
@@ -120,11 +137,23 @@ class Command_Network:
         
         elif cmd.startswith("DP_BOMB"):
             cmd =cmd.split(" ")
-            return str("DP_BOMB " + cmd[1] + " \\").encode()
+            return str("DP_BOMB " + cmd[1] + ' ' + cmd[2]  + ' ' + cmd[3]+ " \\").encode()
 
         elif cmd.startswith("A_FRUIT"):
             cmd =cmd.split(" ")
             return str("A_FRUIT " + cmd[1] + ' ' + cmd[2]  + ' ' + cmd[3]  +" \\").encode()
+        
+        elif cmd.startswith("S_LIFE"):
+            cmd = cmd.split(' ')
+            return str("S_LIFE " + cmd[1] + ' ' + cmd[2] + " \\").encode()
+
+        elif cmd.startswith("KILL"):
+            cmd = cmd.split(' ')
+            return str("KILL " + cmd[1] + " \\").encode()
+        
+        elif cmd.startswith("QUIT"):
+            cmd = cmd.split(' ')
+            return str("QUIT " + cmd[1] + " \\").encode()
 
         elif cmd.startswith("END"):
             cmd =cmd.split(" ")
@@ -141,8 +170,8 @@ class Command_Network:
         
         listCmds = msg.decode()
         listCmds = listCmds.split('\\')
-        print ("BUFFER")
-        print (listCmds)
+        #print ("BUFFER")
+        #print (listCmds)
         
         listValid =[]
 
@@ -150,9 +179,9 @@ class Command_Network:
             
             cmd = listCmds[0]
             cmd = cmd.replace ('\\',' ')
-            print ("DEC")
-            print (cmd)
-            print ()
+            #print ("DEC")
+            #print (cmd)
+            #print ()
             del listCmds[0]
             
             if cmd.startswith("CON "):
@@ -182,7 +211,7 @@ class Command_Network:
                     try:
                         self.model.move_character(nickname, direction)
                     except:
-                        listValid.append(self.enc_command(str("MSG You are dead !!")))
+                        listValid.append(str("MSG You are dead !!"))
                         pass
                 listValid.append(cmd)
 
@@ -193,22 +222,40 @@ class Command_Network:
 
             elif cmd.startswith("A_BOMB "):
                 cmdtmp = cmd.split(' ')
-                self.model.bombs.append(Bomb(self.model.map, int(cmdtmp[1]),int(cmdtmp[3])))
+                self.model.bombs.append(Bomb(self.model.map, (int(cmdtmp[1]),int(cmdtmp[2])),int(cmdtmp[3]),int(cmdtmp[4])))
                 listValid.append(cmd)
 
             elif cmd.startswith("DP_BOMB "):
                 cmdtmp = cmd.split(' ')
-                nickname = cmdtmp[1]
                 try:
-                    self.model.drop_bomb(nickname)
+                    self.model.drop_bomb(cmdtmp[1], int(cmdtmp[2]), int(cmdtmp[3]))
                 except:
-                    listValid.append(self.enc_command(str("MSG You are dead !!")))
+                    listValid.append(str("MSG You are dead !!"))
                     pass
                 listValid.append(cmd)
            
             elif cmd.startswith("A_FRUIT "):
                 cmdtmp = cmd.split(' ')
                 self.model.add_fruit(int(cmdtmp[1]), (int(cmdtmp[2]), int(cmdtmp[3])))
+                listValid.append(cmd)
+                
+            elif cmd.startswith("S_LIFE "):
+                cmdtmp = cmd.split(' ')
+                player = self.model.look(cmdtmp[1])
+                if player != None :
+                    player.health = int(cmdtmp[2])
+                else:
+                    listValid.append(str("KILL "+cmdtmp[1]))
+                    pass
+                listValid.append(cmd)
+                
+            elif cmd.startswith("KILL ") or cmd.startswith("QUIT "):
+                cmdtmp = cmd.split(' ')
+                try:
+                    self.model.kill_character(cmdtmp[1]);
+                except:
+                    pass
+                        
                 listValid.append(cmd)
 
             elif cmd.startswith("END"):
@@ -257,7 +304,7 @@ class NetworkServerController:
             for s in self.socks:
                 if self.socks[s]== nick:
                     print ("Error command init new player, name already use.")
-                    newSock.send(self.cmd.enc_command(str("ERROR command init new player, name already use.")))
+                    newSock.sendall(self.cmd.enc_command(str("ERROR command init new player, name already use.")))
                     validNick = False
                     newSock.close();
                     
@@ -272,7 +319,7 @@ class NetworkServerController:
                 self.initFruits(newSock)
                 self.initBombs(newSock)
                 self.initCharacters(newSock)
-                newSock.send(self.cmd.enc_command(str("END ")))
+                newSock.sendall(self.cmd.enc_command(str("END ")))
         else:
             print ("Error command init new player")
             newSock.close();
@@ -283,7 +330,11 @@ class NetworkServerController:
     def re_send(self,sockSender, cmd):
         for sock in self.socks:
             if sock != self.soc and sock != sockSender:
-                sock.sendall(self.cmd.enc_command(cmd))
+                try :
+                    sock.sendall(self.cmd.enc_command(cmd))
+                except:
+                    print (self.socks[sock])
+                    print("Error client connection close.")
                 
     '''
     Initialise les characters à envoyer
@@ -292,24 +343,24 @@ class NetworkServerController:
         for char in self.cmd.model.characters:
             if (char.nickname == self.socks[s]):
                 #is_player = true, send for initialization to others = false
-                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
+                s.sendall(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
                 self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health)))
             else:
-                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
+                s.sendall(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
                 
     '''
     Initialise les fruits à envoyer
     '''  
     def initFruits(self, s):
         for fruit in self.cmd.model.fruits:
-            s.send(self.cmd.enc_command(str("A_FRUIT "+str(FRUITS[fruit.kind])+" "+ str(fruit.pos[X])+" "+ str(fruit.pos[Y]))))
+            s.sendall(self.cmd.enc_command(str("A_FRUIT "+str(FRUITS[fruit.kind])+" "+ str(fruit.pos[X])+" "+ str(fruit.pos[Y]))))
         return
     '''
     Initialise les bombs à envoyer
     '''
     def initBombs(self, s):
         for bomb in self.cmd.model.bombs:
-            s.send(self.cmd.enc_command(str("A_BOMB "+str(bomb.pos[X])+" "+str(bomb.pos[Y])+" "+str(bomb.countdown))))
+            s.sendall(self.cmd.enc_command(str("A_BOMB "+str(bomb.pos[X])+" "+str(bomb.pos[Y])+" "+str(bomb.max_range)+" "+str(bomb.countdown))))
         return
     
     '''
@@ -323,12 +374,14 @@ class NetworkServerController:
         return
     
     '''
-    Déconnecte un client
+    Déconnecte un client et renvoie le nom du joueur à supprimer
     ''' 
     def disconnectClient(self, s):
-        self.cmd.model.quit(self.socks[s]);
+        nick = self.socks[s]
+        self.cmd.model.quit(nick);
         del self.socks[s];
         s.close()
+        return nick
                       
     # time event
 
@@ -339,12 +392,28 @@ class NetworkServerController:
                 if s is self.soc:
                     self.clientConnection(s);
                 else:
-                    msg = s.recv(SIZE_BUFFER_NETWORK);
-                    listCmd = self.cmd.dec_command(msg)
-                    for cmd in listCmd:
-                        self.re_send(s, cmd)
+                    try:
+                        msg = s.recv(SIZE_BUFFER_NETWORK);
+                    except:
+                        print ("Error interuption")
+                        print("Connection client close.")
+                        self.disconnectClient(s)
+                        
                     if (len(msg) <= 0):
-                        self.disconnectClient(s);
+                        print ("Error interuption")
+                        self.disconnectClient(s)
+                        
+                    else:
+                        listCmd = self.cmd.dec_command(msg)
+                        for cmd in listCmd:
+                            if cmd.startswith("QUIT"):
+                                 nick = self.disconnectClient(s)
+                                 self.re_send(s, str("KILL "+ nick))
+                                 break
+                            else:
+                                self.re_send(s, cmd)
+                                
+                    
         
         return True
 
@@ -387,7 +456,7 @@ class NetworkClientController:
         print ("Send request game ...")
         print()
         #Connection
-        self.soc.send(self.cmd.enc_command(str("CON "+nickname)));
+        self.soc.sendall(self.cmd.enc_command(str("CON "+nickname)));
         
 
         #Decode map + objects (fruits, bombs) + players
@@ -417,6 +486,8 @@ class NetworkClientController:
 
     def keyboard_quit(self):
         print("=> event \"quit\"")
+        if not self.cmd.model.player: return False
+        self.soc.sendall(self.cmd.enc_command(str("QUIT "+self.cmd.model.player.nickname)))
         return False
 
     def keyboard_move_character(self, direction):
@@ -424,7 +495,7 @@ class NetworkClientController:
         
         if not self.cmd.model.player: return True
         
-        self.soc.send(self.cmd.enc_command(str("MOVE "+self.cmd.model.player.nickname+" "+str(direction))));
+        self.soc.sendall(self.cmd.enc_command(str("MOVE "+self.cmd.model.player.nickname+" "+str(direction))));
             
         #SOLO
         nickname = self.cmd.model.player.nickname
@@ -438,7 +509,7 @@ class NetworkClientController:
         
         if not self.cmd.model.player: return True
         
-        self.soc.send(self.cmd.enc_command(str("DP_BOMB "+self.cmd.model.player.nickname)));
+        self.soc.sendall(self.cmd.enc_command(str("DP_BOMB "+self.cmd.model.player.nickname+" "+str(MAX_RANGE)+" "+str(COUNTDOWN))));
         
         #SOLO
         nickname = self.cmd.model.player.nickname
@@ -452,14 +523,22 @@ class NetworkClientController:
         sel = select.select([self.soc], [], [], 0);
         if sel[0]:
             for s in sel[0]:
-                msg = s.recv(SIZE_BUFFER_NETWORK);
-                
+                try:
+                    msg = s.recv(SIZE_BUFFER_NETWORK);
+                except:
+                    print ("Error: Server has been disconnected")
+                    s.close();
+                    sys.exit(1)
+                    
                 if (len(msg) <= 0):
                     print ("Error: Server has been disconnected")
                     s.close();
                     sys.exit(1)
-
+                    
                 listCmd = self.cmd.dec_command(msg)
+                
+        if self.cmd.model.player != None :
+            self.soc.sendall(self.cmd.enc_command(str("S_LIFE "+str(self.cmd.model.player.nickname)+" "+str(self.cmd.model.player.health))));
 
         
         return True

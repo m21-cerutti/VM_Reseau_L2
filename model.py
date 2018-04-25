@@ -83,10 +83,10 @@ class Fruit:
 ### Class Bomb ###
 
 class Bomb:
-    def __init__(self, m, pos, countdown = COUNTDOWN):
+    def __init__(self, m, pos, range_bomb = MAX_RANGE, countdown = COUNTDOWN):
         self.map = m
         self.pos = pos
-        self.max_range = MAX_RANGE
+        self.max_range = range_bomb
         self.countdown = countdown
         self.time_to_explode = (countdown+1)*1000-1 # in ms
         # compute bomb range
@@ -242,13 +242,15 @@ class Model:
         return character
 
     # drop a bomb
-    def drop_bomb(self, nickname):
+    def drop_bomb(self, nickname, range_bomb = None, countdown = None):
         character = self.look(nickname)
         if not character:
             print("Error: nickname \"{}\" not found!".format(nickname))
             sys.exit(1)
         if character.disarmed == 0:
-            self.bombs.append(Bomb(self.map, character.pos))
+            if range_bomb is None: range_bomb = MAX_RANGE
+            if countdown is None: countdown = COUNTDOWN
+            self.bombs.append(Bomb(self.map, character.pos, range_bomb, countdown))
             character.disarmed = DISARMED
         print("=> drop bomb at position ({},{})".format(character.pos[X], character.pos[Y]))
 

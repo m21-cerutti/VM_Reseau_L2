@@ -13,6 +13,7 @@ from model import *
 
 #Size taken to the socket's buffer
 SIZE_BUFFER_NETWORK = 2056
+TIMEOUT = 20
 
 
 class Command_Network:
@@ -66,33 +67,7 @@ class Command_Network:
         QUIT <nicknamePlayer>
         
         #TOADD
-        -system afk
         -send map
-        -bonus
-
-        _______
-        BONUS:
-     
-        Fruit augmentant
-        -degats
-        -rangeBomb
-        -immunity
-
-        chat pas content, si on le touche on perd de la vie
-        
-        class cat
-        -pos
-        -countdown
-        -damage
-        -probability
-        +fct move (change direction if collision wall or 3 move)
-        +fct tick
-
-        model
-        -activation_cat
-
-        Network
-        -CAT <posx> <posy>
 
 
     '''
@@ -287,6 +262,7 @@ class NetworkServerController:
         self.soc.bind(('', port));
         self.soc.listen(1);
         self.socks = {};
+        self.afk={}
         self.socks[self.soc] = "SERVER";
 
     '''
@@ -301,16 +277,28 @@ class NetworkServerController:
         if (listcmd!=None and listcmd[0].startswith("CON")):
             nick= listcmd[0].split(" ")[1]
             validNick = True
+            Afk = False
             for s in self.socks:
-                if self.socks[s]== nick:
+                if self.socks[s]== nick and s not in self.afk:
                     print ("Error command init new player, name already use.")
                     newSock.sendall(self.cmd.enc_command(str("ERROR command init new player, name already use.")))
                     validNick = False
                     newSock.close();
+                if s in self.afk:
+                    Afk=True
                     
             if validNick :
                 self.socks[newSock]= nick
-                self.cmd.model.add_character(nick, False)
+                if not Afk :
+                    self.cmd.model.add_character(nick, False)
+                else:
+                    for s in self.afk:
+                        if self.socks[s]==nick:
+                            self.afk.pop(s)
+                            self.socks.pop(s)
+                            s.close()
+                            break
+                    
                 print("New connection")
                 print(addr)
                 
@@ -318,7 +306,7 @@ class NetworkServerController:
                 self.initMap(newSock);
                 self.initFruits(newSock)
                 self.initBombs(newSock)
-                self.initCharacters(newSock)
+                self.initCharacters(newSock,Afk)
                 newSock.sendall(self.cmd.enc_command(str("END ")))
         else:
             print ("Error command init new player")
@@ -340,12 +328,13 @@ class NetworkServerController:
     '''
     Initialise les characters à envoyer
     '''
-    def initCharacters(self, s):
+    def initCharacters(self, s, afk):
         for char in self.cmd.model.characters:
             if (char.nickname == self.socks[s]):
                 #is_player = true, send for initialization to others = false
                 s.sendall(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
-                self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health)))
+                if not afk:
+                    self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health)))
             else:
                 s.sendall(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
                 
@@ -396,32 +385,47 @@ class NetworkServerController:
                     self.clientConnection(s);
                     
                 elif s in self.socks:
-                    msg =b""
-                    try:
-                        msg = s.recv(SIZE_BUFFER_NETWORK);
-                    except:
-                        print ("Error interuption")
-                        print("Connection client close.")
-                        self.disconnectClient(s)
-                        break
+                    if s not in self.afk:
+                        msg =b""
+                        try:
+                            msg = s.recv(SIZE_BUFFER_NETWORK);
+                        except:
+                            print ("Error interuption")
+                            print("Connection client afk.")
+                            self.afk[s]=(TIMEOUT+1)*1000-1
+                            #self.disconnectClient(s)
+                            break
+                            
+                        if (len(msg) <= 0):
+                            print ("Error message empty.")
+                            self.afk[s]=(TIMEOUT+1)*1000-1
+                            #self.disconnectClient(s)
+                            break
+                            
+                        else:
+                            listCmd = self.cmd.dec_command(msg)
+                            for cmd in listCmd:
+                                if cmd.startswith("QUIT"):
+                                     self.disconnectClient(s)
+                                     break
+                                else:
+                                    self.re_send(s, cmd)
                         
-                    if (len(msg) <= 0):
-                        print ("Error message empty.")
-                        self.disconnectClient(s)
-                        break
-                        
+                        for char in self.cmd.model.characters:
+                             self.re_send(s ,str("S_LIFE "+str(char.nickname)+" "+str(char.health)));
                     else:
-                        listCmd = self.cmd.dec_command(msg)
-                        for cmd in listCmd:
-                            if cmd.startswith("QUIT"):
-                                 self.disconnectClient(s)
-                                 break
-                            else:
-                                self.re_send(s, cmd)
-                    
-                    for char in self.cmd.model.characters:
-                         self.re_send(s ,str("S_LIFE "+str(char.nickname)+" "+str(char.health)));
-                                
+                        try:
+                            msg = s.recv(SIZE_BUFFER_NETWORK);
+                            self.afk.pop(s)
+                            
+                        except:
+                            self.afk[s]-=dt
+                            print(int(self.afk[s] / 1000))
+                            if (self.afk[s]<0):
+                                print ("timeout connection")
+                                print (self.socks[s])
+                                self.afk.pop(s)
+                                self.disconnectClient(s)
                     
         
         return True

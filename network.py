@@ -377,10 +377,11 @@ class NetworkClientController:
             sys.exit(1);
 
         print ("Connection to server open.")
-
+        print ("Send request game ...")
+        print()
         #Connection
         self.soc.send(self.cmd.enc_command(str("CON "+nickname)));
-	print ("Send request game ...")
+        
 
         #Decode map + objects (fruits, bombs) + players
         stop = False

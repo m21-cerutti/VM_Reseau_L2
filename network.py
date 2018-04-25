@@ -188,7 +188,7 @@ class Command_Network:
 
             elif cmd.startswith("A_PLAY "):
                 cmdtmp = cmd.split(' ')
-                self.model.add_character(cmdtmp[1],bool(int(cmdtmp[2])),int(cmdtmp[3]),(int(cmdtmp[4]), int(cmdtmp[5]), int(cmdtmp[6])))
+                self.model.add_character(cmdtmp[1],bool(int(cmdtmp[2])),int(cmdtmp[3]),(int(cmdtmp[4]), int(cmdtmp[5])), int(cmdtmp[6]))
                 listValid.append(cmd)
 
             elif cmd.startswith("A_BOMB "):

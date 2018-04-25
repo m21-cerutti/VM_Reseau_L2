@@ -227,14 +227,15 @@ class Model:
         print("=> add fruit ({}) at position ({},{})".format(FRUITS_STR[kind], pos[X], pos[Y]))
 
     # add a new character
-    def add_character(self, nickname, isplayer = False, kind = None, pos = None):
+    def add_character(self, nickname, isplayer = False, kind = None, pos = None, health = None):
         character = self.look(nickname)
         if character:
             print("Error: nickname \"{}\" already used!".format(nickname))
             sys.exit(1)
         if pos is None: pos = self.map.random()
         if kind is None: kind = random.choice(CHARACTERS)
-        character = Character(nickname, kind, self.map, pos)
+        if health is None: health = HEALTH
+        character = Character(nickname, kind, self.map, pos, health)
         print("=> add character \"{}\" ({}) as position ({},{})".format(nickname, CHARACTERS_STR[kind], pos[X], pos[Y]))
         self.characters.append(character)
         if isplayer: self.player = character

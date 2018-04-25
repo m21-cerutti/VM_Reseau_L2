@@ -59,7 +59,7 @@ class Command_Network:
         Ajoute un joueur
         """
         #player
-        A_PLAY <nicknamePlayer> <isplayer> <kind> <posX> <posY>
+        A_PLAY <nicknamePlayer> <isplayer> <kind> <posX> <posY> <health>
         
         """
         Ajoute une bombe
@@ -108,7 +108,7 @@ class Command_Network:
 
         elif cmd.startswith("A_PLAY"):
             cmd =cmd.split(" ")
-            return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] +  ' ' + cmd[4] + ' ' + cmd[5] + " \\").encode()
+            return str("A_PLAY " + cmd[1] + ' ' + cmd[2] + ' ' + cmd[3] +  ' ' + cmd[4] + ' ' + cmd[5]+ ' ' + cmd[6] + " \\").encode()
 
         elif cmd.startswith("MOVE"):
             cmd = cmd.split(' ')
@@ -187,7 +187,7 @@ class Command_Network:
 
             elif cmd.startswith("A_PLAY "):
                 cmdtmp = cmd.split(' ')
-                self.model.add_character(cmdtmp[1],bool(int(cmdtmp[2])),int(cmdtmp[3]),(int(cmdtmp[4]), int(cmdtmp[5])))
+                self.model.add_character(cmdtmp[1],bool(int(cmdtmp[2])),int(cmdtmp[3]),(int(cmdtmp[4]), int(cmdtmp[5]), int(cmdtmp[6])))
                 listValid.append(cmd)
 
             elif cmd.startswith("A_BOMB "):
@@ -290,7 +290,7 @@ class NetworkServerController:
         for char in self.cmd.model.characters:
             if (char.nickname == self.socks[s]):
                 #is_player = true, send for initialization to others = false
-                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))
+                s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"1"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])+" "+ str(char.health))))
                 self.re_send(s, str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y])))
             else:
                 s.send(self.cmd.enc_command(str("A_PLAY "+char.nickname+" "+"0"+" "+str(char.kind)+" "+ str(char.pos[X])+" "+ str(char.pos[Y]))))

@@ -111,10 +111,10 @@ class Bomb:
 ### Class Character ###
 
 class Character:
-    def __init__(self, nickname, kind, m, pos):
+    def __init__(self, nickname, kind, m, pos, health = HEALTH):
         self.map = m
         self.kind = kind
-        self.health = HEALTH
+        self.health = health
         self.immunity = 0 # the character gets immunity against bomb during this time (in ms)
         self.disarmed = 0 # the character cannot drop a bomb during this time (in ms)
         self.nickname = nickname

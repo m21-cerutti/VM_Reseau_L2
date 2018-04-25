@@ -422,10 +422,11 @@ class NetworkClientController:
     def keyboard_move_character(self, direction):
         print("=> event \"keyboard move direction\" {}".format(DIRECTIONS_STR[direction]))
         
+        if not self.cmd.model.player: return True
+        
         self.soc.send(self.cmd.enc_command(str("MOVE "+self.cmd.model.player.nickname+" "+str(direction))));
             
         #SOLO
-        if not self.cmd.model.player: return True
         nickname = self.cmd.model.player.nickname
         if direction in DIRECTIONS:
             self.cmd.model.move_character(nickname, direction)
@@ -435,10 +436,11 @@ class NetworkClientController:
     def keyboard_drop_bomb(self):
         print("=> event \"keyboard drop bomb\"")
         
+        if not self.cmd.model.player: return True
+        
         self.soc.send(self.cmd.enc_command(str("DP_BOMB "+self.cmd.model.player.nickname)));
         
         #SOLO
-        if not self.cmd.model.player: return True
         nickname = self.cmd.model.player.nickname
         self.cmd.model.drop_bomb(nickname)
         

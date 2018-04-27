@@ -193,7 +193,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 		
 		Puis l'envoi et la réception des données, nous avons choisi d'utiliser les sendall/recv de la bibliotheque socket (\ref{moodle}) en mode non bloquant, car de une, il ne fallait pas bloquer la boucle de jeu pour que tout s'actualise en temps réel, de deux, le sendall permettait de garder un ordre d'envoi chronologique, et nous avons sur les recv gérer quand le buffer recevait plusieurs instructions à la fois. 
 		
-		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, ou on encodait la commande au départ de string en byte array avec enc_command, et on décodait et on altérait le modèle avec dec_command, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :
+		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, ou on encodait la commande au départ de string en byte array avec enc\_command, et on décodait et on altérait le modèle avec dec\_command, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :
 		
 		\textbf{CMD <arg1> <arg2>\textbackslash\textbackslash}
 		\\
@@ -205,7 +205,12 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 		L'un des principaux problèmes que nous avons rencontré en jouant est que les parties sont longues (il est difficile d'éliminer les autres).
 		L'ajout de collisions avec les bombes permet de bloquer les joueurs adverses, les rendant plus simples à éliminer.
 		Les parties sont de fait plus courtes mais avec plus d'action.
-
+		\\
+		
+		Le principe de cette algorithme est de vérifier pour chaque bombe posé la position d'arrivé du joueur et de celle-ci pour bloquer les mouvements. Nous avions réfléchi à d'autres implémentations en rajoutant sur la map la bombe posé et de vérifier uniquement sur la case d'arrivé du joueur si il y a une bombe, mais cela demanderait beaucoup d'effort pour un petit jeu et plus de mémoire "inutile" si il y a pas de bombes. Comme en plus du fait du timer des bombes et de la période où on peut plus placer de bombes, le nombre de bombes sur le plateau est limité.
+		
+		\lstinputlisting[firstline=256,lastline=294, style=PythonStyle]{model.py}
+		
 		\subsection{Gestion des déconnexions}
 
 	\section{Bilan et critique}

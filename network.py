@@ -542,10 +542,9 @@ class NetworkClientController:
                 try:
                     msg = s.recv(SIZE_BUFFER_NETWORK);
                 except OSError as e:
-                    print(e)
-                    print ("Error: Server has been disconnected")
+                    print ("Server closed connection.")
                     s.close();
-                    sys.exit(1)
+                    sys.exit()
                     
                 if (len(msg) <= 0):
                     print ("Error: message empty, server has been disconnected")

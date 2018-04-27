@@ -6,38 +6,31 @@ This is a simple "Bomber Man" game written in Python 3, based on the *PyGame* li
 ## Download & Install ##
 
 First clone the project available on GitHUB under GPL:
-
 ```
   $ git clone https://github.com/m21-cerutti/VM_Reseau_L2
 ```
 
 To install Python (root privilege required):
-
 ```
   $ sudo apt get install python3 pip3
 ```
 
 To install the *PyGame* library (user privilege enough):
-
 ```
   $ pip3 install pygame
 ```
 
 To start the server:
-
 ```
-  $ ./bomber_server.py <port> <map>
+  $ ./bomber_server.py <port>
 ```
-
 By default, the map "maps/map0" is used, but you can generate you own map (*mymap*) and use it as follows,
 but the client needs to have it:
-
 ```
-  $ ./bomber.py maps/mymap
+  $ ./bomber.py <port> "maps/<mymap>"
 ```
 
 To start the client:
-
 ```
   $ ./bomber_client.py <adresse ip4> <port> <name>
 ```

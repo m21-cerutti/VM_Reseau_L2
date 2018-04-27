@@ -62,7 +62,7 @@
     basicstyle=\footnotesize,
     breakatwhitespace=true,
     breaklines=true,
-    captionpos=b,
+    captionpos=b,que l'on ai pas de
     numbers=left,
     numbersep=5pt,
     language=Python
@@ -96,26 +96,26 @@
     \vspace{1cm}
       \includegraphics[width=0.5\textwidth]{IMG_Latex/ubx-logo.png}\\
 	\vspace{2cm}
-       
+
 \begin{center}
 	{\large\textbf{	\@date}}\\
 	\vspace{15mm}
-	
+
     {\Huge   Rapport\\
     \vspace{5mm}
     \textbf{\@title}\\}
-    
+
     \vspace{15mm}
     {\large AMEEUW Vincent \\ CERUTTI Marc} \\
-    
+
     \vspace{15mm}
 	\begin{abstract}
 	\center
 	Rapport pour le projet de l'enseignement \\'4TIN401U - Réseaux Info L2' (2017 - 2018) sur la mise en réseau du jeu \textit{Bomberman}\\
 	\end{abstract}
 \end{center}
-       
-	
+
+
   \end{titlepage}
 \makeatother
 
@@ -127,21 +127,21 @@
 \newpage
 
 %DOC
-\part{Preambule}
+\part{Préambule}
 
-Dans le cadre de l'enseignement '4TIN401U - Réseaux Info L2' (2017 - 2018) à l'Université de Bordeaux, en semestre 4 de Licence Informatique, nous avons dut adapter le jeu \textit{Bomberman} fait grâce à la bibliothèque Pygame en multijoueur (Description en \ref{moodle}).
+Dans le cadre de l'enseignement '4TIN401U - Réseaux Info L2' (2017 - 2018) à l'Université de Bordeaux, en semestre 4 de Licence Informatique, nous avons dû adapter le jeu \textit{Bomberman} fait grâce à la bibliothèque Pygame en multijoueur (Description en \ref{moodle}).
 \\
 
-Le rendu final de fin d'année fut donc d'avoir un jeu \textit{Bomberman} fonctionnel  en langage Python, avec un rapport fait sur notre travail avant le \textbf{le vendredi 27 avril à 23h55}.
+Le rendu final de fin d'année fut donc d'avoir un jeu \textit{Bomberman} fonctionnel en langage Python, avec un rapport fait sur notre travail avant \textbf{le vendredi 27 avril à 23h55}.
 \\
 
-Les principaux objectifs de cet enseignement était de nous familiariser sur la mise en réseau de projets informatiques. 
-Il nous as permis ainsi de mettre en pratique nos connaissances théorique sur le réseau, la gestion des ports logicielles, des sockets, de l'envoi et de la réception de données ainsi que de son traitement.
+Le principal objectif de cet enseignement était de nous familiariser sur la mise en réseau de projets informatiques.
+Il nous a ainsi permis de mettre en pratique nos connaissances théoriques sur le réseau, la gestion des ports logiciels, des sockets, de l'envoi et de la réception de données ainsi que de leur traitement.
 \\
 
 Les contraintes techniques étaient de le faire à l'aide d'un serveur centralisé, qui ne réalise pas d'affichage graphique, mais maintient à jour l'état courant du jeu.
-Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et affichage graphique)et chaque client dispose d'une copie du modèle, qu'il doit maintenir à jour à travers des échanges réseaux avec le serveur.
-	
+Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et affichage graphique) et chaque client dispose d'une copie du modèle, qu'il doit maintenir à jour au travers des échanges réseaux avec le serveur.
+
 	En d'autres termes :
 	\begin{itemize}
 \item Récupération par le client du modèle serveur à travers le réseau (map, fruits, players).
@@ -152,15 +152,15 @@ Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et
 \item Gestion des erreurs (mort violente d'un client, coupure réseau).
 \item Ajout de bonus FUN dans le jeu, impliquant de faire du réseau.
 	\end{itemize}
-	
-	
+
+
 \begin{comment}
 Vous devez rendre ici deux fichiers :
 
     un rapport PDF (de 5 à 10 pages max, police 12) décrivant votre projet, organisé comme cela :
         introduction rapide au projet
-        vue d'ensemble fonctionnelle : de ce qui marche parfaitement, de ce qui ne marche pas parfaitement, des bonus et de ce qui reste à faire, ... 
-        architecture et implémentation : vous prendrez soin de décrire les choix techniques que vous avez effectués (TCP/UDP, select/thread, recv non bloquant, acquittement, ...), ainsi que de décrire votre protocole réseau au moyen d'un formalisme de votre choix (shéma, algorithme en pseudo-langage, automate, ...). 
+        vue d'ensemble fonctionnelle : de ce qui marche parfaitement, de ce qui ne marche pas parfaitement, des bonus et de ce qui reste à faire, ...
+        architecture et implémentation : vous prendrez soin de décrire les choix techniques que vous avez effectués (TCP/UDP, select/thread, recv non bloquant, acquittement, ...), ainsi que de décrire votre protocole réseau au moyen d'un formalisme de votre choix (shéma, algorithme en pseudo-langage, automate, ...).
         bilan du projet
     une archive ZIP contenant tous les fichiers sources et ressources (images, ...) utiles au bon fonctionnement de votre projet, ainsi qu'un README détaillant comment lancer et jouer avec votre programme.
 
@@ -171,29 +171,34 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 \newpage
 \part{Projet réseau}
-	
+
 	\section{Méthode de travail}
-	
-	Pour notre méthode de travail, on s'était mis d'abord d'accord sur les protocoles réseau à utiliser et le squelette du code sur papier, puis on a travailler chacun de son coté en adaptant le code de l'autre.
-	
-	Notre base de code était ainsi assez modulaire pour que l'on ai pas de de problèmes sur d'éventuelles modifications ou imprévu du code pour la suite.
-	
+
+	Pour notre méthode de travail, on s'est d'abord mis d'accord sur les protocoles réseau à utiliser et le squelette du code sur papier, puis on a travaillé chacun de notre côté en adaptant le code de l'autre.
+
+	Notre base de code était ainsi assez modulaire pour ne pas avoir de problèmes sur d'éventuelles modifications ou imprévus du code pour la suite.
+
 	\section{Analyse du modèle}
-	
+
 	/**/
-	
+
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
-		
+		Le choix du protocole réseau était libre, nous avons donc choisi d'utiliser TCP, car ainsi nous évitons de perdre des données en transit nécessaires au bon déroulement du jeu.
+
 		\subsection{Choix techniques}
-	
-	
-	\section{Améliorations effectues}
+
+
+	\section{Améliorations effectuées}
 		\subsection{Collisions sur les bombes}
-		\subsection{Gestion de déconnexion}
-	
+		L'un des principaux problèmes que nous avons rencontré en jouant est que les parties sont longues (il est difficile d'éliminer les autres).
+		L'ajout de collisions avec les bombes permet de bloquer les joueurs adverses, les rendant plus simples à éliminer.
+		Les parties sont de fait plus courtes mais avec plus d'action.
+
+		\subsection{Gestion des déconnexions}
+
 	\section{Bilan et critique}
-		
+
 \newpage
 \appendix
 \part{Annexes}

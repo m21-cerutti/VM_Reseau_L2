@@ -13,10 +13,11 @@ from model import *
 
 #Size taken to the socket's buffer
 SIZE_BUFFER_NETWORK = 2056
+#Timeout for deconnection afk
 TIMEOUT = 20
 
 
-class Command_Network:
+class CommandNetwork:
 
     def __init__(self, model, isServer):
         self.model = model;
@@ -256,7 +257,7 @@ class NetworkServerController:
 
     def __init__(self, model, port):
         self.port = port;
-        self.cmd = Command_Network(model,True)
+        self.cmd = CommandNetwork(model,True)
         self.soc = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
         self.soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1);
         self.soc.bind(('', port));
@@ -439,7 +440,7 @@ class NetworkClientController:
     def __init__(self, model, host, port, nickname):
         self.host = host;
         self.port = port;
-        self.cmd = Command_Network(model,False)
+        self.cmd = CommandNetwork(model,False)
         self.nickname = nickname;
         self.soc = None;
         try:

@@ -111,7 +111,7 @@
     \vspace{15mm}
 	\begin{abstract}
 	\center
-	Rapport pour le projet de l'enseignement \\'4TIN401U - Réseaux Info L2' (2017 - 2018) sur le jeu \textit{Bomberman}\\
+	Rapport pour le projet de l'enseignement \\'4TIN401U - Réseaux Info L2' (2017 - 2018) sur la mise en réseau du jeu \textit{Bomberman}\\
 	\end{abstract}
 \end{center}
        
@@ -129,15 +129,31 @@
 %DOC
 \part{Preambule}
 
-Dans le cadre de l'enseignement '4TIN401U - Réseaux Info L2' (2017 - 2018) à l'Université de Bordeaux, du semestre 4 en Licence Informatique, nous avons dut adapter le jeu \textit{Bomberman} fait grâce à la bibliothèque Pygame en multijoueur (Description en \ref{moodle}).
-\\
-
-Les principaux objectifs de cet enseignement était de nous familiariser sur la mise en réseau de projets informatiques. 
-Il nous as permis ainsi de mettre en pratique nos connaissances théorique sur le réseau, la gestion de ports, de l'envoi et de la réception de données et de son traitement.
+Dans le cadre de l'enseignement '4TIN401U - Réseaux Info L2' (2017 - 2018) à l'Université de Bordeaux, en semestre 4 de Licence Informatique, nous avons dut adapter le jeu \textit{Bomberman} fait grâce à la bibliothèque Pygame en multijoueur (Description en \ref{moodle}).
 \\
 
 Le rendu final de fin d'année fut donc d'avoir un jeu \textit{Bomberman} fonctionnel  en langage Python, avec un rapport fait sur notre travail avant le \textbf{le vendredi 27 avril à 23h55}.
+\\
 
+Les principaux objectifs de cet enseignement était de nous familiariser sur la mise en réseau de projets informatiques. 
+Il nous as permis ainsi de mettre en pratique nos connaissances théorique sur le réseau, la gestion des ports logicielles, des sockets, de l'envoi et de la réception de données ainsi que de son traitement.
+\\
+
+Les contraintes techniques étaient de le faire à l'aide d'un serveur centralisé, qui ne réalise pas d'affichage graphique, mais maintient à jour l'état courant du jeu.
+Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et affichage graphique)et chaque client dispose d'une copie du modèle, qu'il doit maintenir à jour à travers des échanges réseaux avec le serveur.
+	
+	En d'autres termes :
+	\begin{itemize}
+\item Récupération par le client du modèle serveur à travers le réseau (map, fruits, players).
+\item Gestion des connexions / déconnexions des joueurs.
+\item Gestion des déplacements des joueurs.
+\item Gestion des bombes.
+\item Extension à de multiples joueurs.
+\item Gestion des erreurs (mort violente d'un client, coupure réseau).
+\item Ajout de bonus FUN dans le jeu, impliquant de faire du réseau.
+	\end{itemize}
+	
+	
 \begin{comment}
 Vous devez rendre ici deux fichiers :
 
@@ -155,20 +171,6 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 \newpage
 \part{Projet réseau}
-	\section{Objectifs}
-
-	Les objectifs concrets du projet était d'adapter le projet solo Bomberman en multijoueur à l'aide d'un serveur centralisé, qui ne réalise pas d'affichage graphique, mais maintient à jour l'état courant du jeu. 		Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et affichage graphique). Chaque client dispose d'une copie du modèle, qu'il doit maintenir à jour à travers des échanges réseaux avec le serveur.
-	
-	En d'autres termes :
-	\begin{itemize}
-\item Récupération par le client du modèle serveur à travers le réseau (map, fruits, players).
-\item Gestion des connexions / déconnexions des joueurs.
-\item Gestion des déplacements des joueurs.
-\item Gestion des bombes.
-\item Extension à de multiples joueurs.
-\item Gestion des erreurs (mort violente d'un client, coupure réseau).
-\item Ajout de bonus FUN dans le jeu, impliquant de faire du réseau.
-	\end{itemize}
 	
 	\section{Méthode de travail}
 	
@@ -178,7 +180,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 	
 	\section{Analyse du modèle}
 	
-	
+	/**/
 	
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
@@ -200,6 +202,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 \section{Moodle} \label{moodle}
 
 https://moodle1.u-bordeaux.fr/course/view.php?id=3671
+
 https://github.com/orel33/bomber
 
 \newpage

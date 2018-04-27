@@ -184,10 +184,14 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
-		Le choix du protocole réseau était libre, nous avons donc choisi d'utiliser TCP, car ainsi nous évitons de perdre des données en transit nécessaires au bon déroulement du jeu.
+		
 
 		\subsection{Choix techniques}
-
+		Nous avons choisi d'utiliser TCP, car ainsi nous évitions de perdre des données en transit nécessaires au bon déroulement du jeu. Cela permettait d'assurer une synchronisation efficace entre les différents copies du jeu.
+		
+		En ce qui concerne la gestion des connexions, nous avons choisi d'utiliser select au lieu des threads, car du fait du partage de certaines données comme le model, la liste des sockets, etc, on ne voulait pas "bloquer" ces variables et qu'elles soient disponibles de modifications à n'importe quel moment du jeu sans avoir de problème d'accès. Nous étions plus familier aussi de cet outil grâce au mini-chat réseau\footnote{Travail réalisé durant l'année en réseau.}.
+		
+		Puis l'envoi et la réception des données, nous avons choisi d'utiliser les send/recv de la bibliotheque socket (\ref{moodle})
 
 	\section{Améliorations effectuées}
 		\subsection{Collisions sur les bombes}
@@ -203,12 +207,25 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 \appendix
 \part{Annexes}
 
+\section{Doc python socket} \label{docpysoc}
+
+https://docs.python.org/3/library/socket.html
 
 \section{Moodle} \label{moodle}
 
 https://moodle1.u-bordeaux.fr/course/view.php?id=3671
 
+\section{github professaur} \label{github}
+
+Professeur
+\\
 https://github.com/orel33/bomber
+\\
+
+Projet
+\\
+https://github.com/m21-cerutti/VM\_Reseau\_L2
+\\
 
 \newpage
 \section{Code Source}

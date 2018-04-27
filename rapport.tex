@@ -184,12 +184,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
-<<<<<<< HEAD
-		
-		
-=======
 
->>>>>>> 945978854f0869a3679a66b9bad103efb715d0bc
 
 		\subsection{Choix techniques}
 		Nous avons choisi d'utiliser TCP, car ainsi nous évitions de perdre des données en transit nécessaires au bon déroulement du jeu. Cela permettait d'assurer une synchronisation efficace entre les différents copies du jeu.
@@ -198,7 +193,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 		Puis l'envoi et la réception des données, nous avons choisi d'utiliser les sendall/recv de la bibliotheque socket (\ref{moodle}) en mode non bloquant, car de une, il ne fallait pas bloquer la boucle de jeu pour que tout s'actualise en temps réel, de deux, le sendall permettait de garder un ordre d'envoi chronologique, et nous avons sur les recv gérer quand le buffer recevait plusieurs instructions à la fois.
 		
-		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, ou on encodait la commande au départ de string en byte array avec enc\textunderscore command, et on décodait et on altérait le modèle avec dec_command, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :
+		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, ou on encodait la commande au départ de string en byte array avec enc\_command, et on décodait et on altérait le modèle avec dec\_command, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :
 		\textbf{CMD <arg1> <arg2>\textbackslash\textbackslash}
 		\\
 
@@ -217,8 +212,10 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 		\subsection{Gestion des déconnexions}
 		
-		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet au départ dés que le client fermer (normalement) son jeu, le programme et la socket se fermait en meme temps, ce qui fait que du coté serveur, il ne faisait pas la différence. Nous avons donc en changeant le comportement de l'événement "quit", d'abord envoyer un message au serveur pour se déconnecter en laissant le jeu client tourné jusqu'à que se soit le client qui gère l'erreur du fait de la déconnection par le serveur.
+		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet au départ dés que le client fermait (normalement) son jeu, le programme et la socket se fermaient en même temps, ce qui fait que du coté serveur, il ne faisait pas la différence entre une déconnection normal et une brutal.
 		
+		Nous avons donc en changeant le comportement de l'événement "quit", d'abord envoyer un message au serveur pour se déconnecter, tout en laissant le jeu client tourné jusqu'à que se soit le client qui gère l'erreur du fait de la déconnection par le serveur.
+		\\
 		L'avantage est que pour la gestion des déconnexions brutales, nous avons choisi que si du coté serveur, un message vide ou une déconnexion impromptue du client se produisait, qu'on fermait la socket associé mais que l'on gardait l'avatar du joueur durant un temps déterminé. Ainsi lors de ce scénario, si l'utilisateur se reconnecte avant le temps déterminé, au lieu de créer un nouveau personnage, il récupère l'ancien.
 		
 		Le désavantage, c'est que le client si le serveur ferme brutalement ou que il ferme la connection normalement, on peut pas différencier l'erreur.

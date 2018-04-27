@@ -181,21 +181,50 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 	\section{Analyse du modèle}
 
 	/**/
-	
-	\textunderscore
+
 	
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
+		
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=\textwidth]{IMG_Latex/Network.jpg}\\
+	\caption{Schéma réseau}
+	\label{shema/network}
+\end{figure}
 
+\newpage
 
+Tout d'abord nous sommes partis dans l'idée que les clients devait eux mêmes calculé tout ce qui concernait les mouvements, la disparition de fruits et le timer des bombes. Comme on peut supposer que la latence est faible comparé à la vitesse d'interaction des utilisateurs, la différence serait minime.
+
+Cela a cependant eu des répercussions, notamment sur la vie des joueurs où certains ont eu la chance (ou pas) d'être encore en vie sur leur client alors que sur les autres le joueur était mort. Nous avons due donc quand même par sécurité synchroniser les vies des joueurs avec les autres.
+\\
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=\textwidth]{IMG_Latex/Classes.jpg}\\
+	\caption{Schéma simplifié class et dépendances}
+	\label{shema/globalproject}
+\end{figure}
+
+\newpage
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[height=0.9\textheight]{IMG_Latex/ProgrammLifeTime.jpg}\\
+	\caption{Schéma simplifié interactions server-client}
+	\label{shema/lifeTime}
+\end{figure}
+		
+		
+		
+\newpage
 		\subsection{Choix techniques}
-		Nous avons choisi d'utiliser TCP, car ainsi nous évitions de perdre des données en transit nécessaires au bon déroulement du jeu. Cela permet d'assurer une synchronisation efficace entre les différents copies du jeu.
+		Nous avons choisi d'utiliser TCP, car ainsi nous évitions de perdre des données en transit nécessaires au bon déroulement du jeu. Cela permettait d'assurer une synchronisation efficace entre les différents copies du jeu.
 
-		En ce qui concerne la gestion des connexions, nous avons choisi d'utiliser select au lieu des threads, car du fait du partage de certaines données comme le model, la liste des sockets, etc... on ne voulait pas "bloquer" ces variables et les laisser disponibles pour modification à n'importe quel moment du jeu sans avoir de problème d'accès. Nous étions, de plus, familiers avec cet outil grâce au mini-chat réseau\footnote{Travail réalisé durant l'année en réseau.}.
+		En ce qui concerne la gestion des connexions, nous avons choisi d'utiliser select au lieu des threads, car du fait du partage de certaines données comme le model, la liste des sockets, etc, on ne voulait pas "bloquer" ces variables et qu'elles soient disponibles de modifications à n'importe quel moment du jeu sans avoir de problème d'accès. Nous étions plus familier aussi de cet outil grâce au mini-chat réseau\footnote{Travail réalisé durant l'année en réseau.}.
 
-		Pour l'envoi et la réception des données, nous avons choisi d'utiliser les sendall/recv de la bibliothèque socket (\ref{docpysoc}) en mode non bloquant, car de une, il ne fallait pas bloquer la boucle de jeu pour que tout s'actualise en temps réel, de deux, le sendall permet de garder un ordre d'envoi chronologique, et nous avons, avec recv, géré quand le buffer reçoit plusieurs instructions à la fois.
-
-		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, où l'on encode la commande de string vers byte array avec enc\textunderscore command, et on décode en altérant le modèle avec dec\textunderscore command, qui vérifie également si la commande existe. Les commandes réseau sont de cette forme :
+		Puis l'envoi et la réception des données, nous avons choisi d'utiliser les sendall/recv de la bibliotheque socket (\ref{moodle}) en mode non bloquant, car de une, il ne fallait pas bloquer la boucle de jeu pour que tout s'actualise en temps réel, de deux, le sendall permettait de garder un ordre d'envoi chronologique, et nous avons sur les recv gérer quand le buffer recevait plusieurs instructions à la fois.
+		
+		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, ou on encodait la commande au départ de string en byte array avec enc\_command, et on décodait et on altérait le modèle avec dec\_command, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :
 		\textbf{CMD <arg1> <arg2>\textbackslash\textbackslash}
 		\\
 
@@ -208,20 +237,20 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 		Les parties sont de fait plus courtes mais avec plus d'action.
 		\\
 
-		Le principe de cette algorithme est de vérifier pour chaque bombe posée sa position et la position d'arrivée du joueur pour bloquer les mouvements. Nous avions réfléchi à d'autres implémentations, par exemple en rajoutant sur la map la bombe posée et en vérifiant uniquement sur la case d'arrivée du joueur s'il y a une bombe, mais cela demanderait beaucoup d'efforts pour un petit jeu et plus de mémoire "inutile" s'il n'y a pas de bombes. De plus, du fait du timer des bombes et du temps d'attente pour poser la suivante, le nombre de bombes sur le plateau est limité.
+		Le principe de cette algorithme est de vérifier pour chaque bombe posé la position d'arrivé du joueur et de celle-ci pour bloquer les mouvements. Nous avions réfléchi à d'autres implémentations en rajoutant sur la map la bombe posé et de vérifier uniquement sur la case d'arrivé du joueur si il y a une bombe, mais cela demanderait beaucoup d'effort pour un petit jeu et plus de mémoire "inutile" si il y a pas de bombes. Comme en plus du fait du timer des bombes et de la période où on peut plus placer de bombes, le nombre de bombes sur le plateau est limité.
 
 		\lstinputlisting[firstline=256,lastline=294, style=PythonStyle]{model.py}
 
 		\subsection{Gestion des déconnexions}
-
-		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet, au départ, dès que le client fermait (normalement) son jeu, le programme et la socket se fermaient en même temps, ce qui fait que le serveur ne faisait pas la différence entre une déconnection normale et une brutale.
-
-		Nous avons donc changé le comportement de l'événement "quit", en envoyant un message au serveur pour se déconnecter, tout en laissant le jeu client tourner jusqu'à ce que ce soit le client qui gère l'erreur du fait de la déconnection par le serveur.
+		
+		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet au départ dés que le client fermait (normalement) son jeu, le programme et la socket se fermaient en même temps, ce qui fait que du coté serveur, il ne faisait pas la différence entre une déconnection normal et une brutal.
+		
+		Nous avons donc en changeant le comportement de l'événement "quit", d'abord envoyer un message au serveur pour se déconnecter, tout en laissant le jeu client tourné jusqu'à que se soit le client qui gère l'erreur du fait de la déconnection par le serveur.
 		\\
-		L'avantage est que, pour la gestion des déconnexions brutales, si du coté serveur, un message vide ou une déconnexion impromptue du client se produit, on ferme la socket associée mais on garde l'avatar du joueur durant un temps déterminé. Ainsi, lors de ce scénario, si l'utilisateur se reconnecte avant le temps déterminé, au lieu de créer un nouveau personnage, il récupère l'ancien.
-
-		L'inconvénient est que si le serveur ferme brutalement ou ferme la connection normalement, on peut pas différencier l'erreur.
-
+		L'avantage est que pour la gestion des déconnexions brutales, nous avons choisi que si du coté serveur, un message vide ou une déconnexion impromptue du client se produisait, qu'on fermait la socket associé mais que l'on gardait l'avatar du joueur durant un temps déterminé. Ainsi lors de ce scénario, si l'utilisateur se reconnecte avant le temps déterminé, au lieu de créer un nouveau personnage, il récupère l'ancien.
+		
+		Le désavantage, c'est que le client si le serveur ferme brutalement ou que il ferme la connection normalement, on peut pas différencier l'erreur.
+		
 
 	\section{Bilan et critique}
 
@@ -246,7 +275,7 @@ https://github.com/orel33/bomber
 
 Projet
 \\
-https://github.com/m21-cerutti/VM\textunderscore Reseau\textunderscore L2
+https://github.com/m21-cerutti/VM\_Reseau\_L2
 \\
 
 \newpage

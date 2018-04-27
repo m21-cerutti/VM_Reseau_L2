@@ -298,6 +298,7 @@ class NetworkServerController:
                     self.cmd.model.add_character(nick, False)
                 else:
                     self.afk.pop(nick)
+                    self.cmd.model.look(nick).immunity = 0
                     
                 print("New connection")
                 print(addr)
@@ -381,6 +382,7 @@ class NetworkServerController:
         if s in self.socks:
             nick = self.socks[s]
             self.afk[nick]=(TIMEOUT+1)*1000-1
+            self.cmd.model.look(nick).immunity = (TIMEOUT+1)*1000-1
             s.close()
             self.socks.pop(s)
             print ("Pass to AFK")
@@ -426,6 +428,7 @@ class NetworkServerController:
             if (self.afk[nick]<0):
                 print ("Timeout connection")
                 print (nick)
+                self.cmd.model.quit(nick);
                 self.afk.pop(nick)
                 self.re_send(self.soc, str("KILL "+ nick))
                 break
@@ -478,10 +481,17 @@ class NetworkClientController:
         #Decode map + objects (fruits, bombs) + players
         stop = False
         while (not stop):
-            
-            msg = self.soc.recv(SIZE_BUFFER_NETWORK)
+
+            try:
+                msg = self.soc.recv(SIZE_BUFFER_NETWORK);
+            except OSError as e:
+                print(e)
+                self.soc.close()
+                sys.exit(1)
+                
             if len(msg )<= 0 :
                 print ("Brutal interruption of the connection during the chargement of the map.")
+                self.soc.close()
                 sys.exit(1)
                 
             listCmd = self.cmd.dec_command(msg)
@@ -547,7 +557,7 @@ class NetworkClientController:
                     sys.exit()
                     
                 if (len(msg) <= 0):
-                    print ("Error: message empty, server has been disconnected")
+                    print ("Server closed connection.")
                     s.close();
                     sys.exit(1)
                     

@@ -260,12 +260,16 @@ class NetworkServerController:
     def __init__(self, model, port):
         self.port = port;
         self.cmd = CommandNetwork(model,True)
+        #socket serveur
         self.soc = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
         self.soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1);
         self.soc.bind(('', port));
         self.soc.listen(1);
+        #liste socket
         self.socks = {};
+        #noms de joueurs afk
         self.afk={}
+        
         self.socks[self.soc] = "SERVER";
 
     '''
@@ -415,12 +419,16 @@ class NetworkServerController:
                             
                     else:
                         listCmd = self.cmd.dec_command(msg)
-                        for cmd in listCmd:
-                            if cmd.startswith("QUIT"):
-                                    self.disconnectClient(s)
-                                    break
+                        if (listCmd==None):
+                            print ("Unknow command give by the client, maybe it have not the same version.")
+                            s.sendall(self.cmd.enc_command(str("ERROR  Unknow command give by the client, maybe it have not the same version.")))
                             else:
-                                self.re_send(s, cmd)
+                                for cmd in listCmd:
+                                    if cmd.startswith("QUIT"):
+                                        self.disconnectClient(s)
+                                        break
+                                else:
+                                    self.re_send(s, cmd)
                         
         for nick in self.afk:
             self.afk[nick]-=dt

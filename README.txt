@@ -1,8 +1,6 @@
 # Bomber Man #
 
-This is a simple "Bomber Man" game written in Python 3, based on the *PyGame* library.
-
-![Bomber Man Snapshot](snap0.png?raw=true "snapshot")
+This is a simple "Bomber Man" game written in Python 3, based on the *PyGame* library
 
 
 ## Download & Install ##
@@ -10,7 +8,7 @@ This is a simple "Bomber Man" game written in Python 3, based on the *PyGame* li
 First clone the project available on GitHUB under GPL:
 
 ```
-  $ git clone https://github.com/orel33/bomber
+  $ git clone https://github.com/m21-cerutti/VM_Reseau_L2
 ```
 
 To install Python (root privilege required):
@@ -25,28 +23,42 @@ To install the *PyGame* library (user privilege enough):
   $ pip3 install pygame
 ```
 
-To start the game:
+To start the server:
 
 ```
-  $ ./bomber.py
+  $ ./bomber_server.py <port> <map>
 ```
 
-By default, the map "maps/map0" is used, but you can generate you own map (*mymap*) and use it as follows:
+By default, the map "maps/map0" is used, but you can generate you own map (*mymap*) and use it as follows,
+but the client needs to have it:
 
 ```
   $ ./bomber.py maps/mymap
 ```
 
+To start the client:
+
+```
+  $ ./bomber_client.py <adresse ip4> <port> <name>
+```
+You must launch the game with an non-use nickname, or you will quit the program wit an error.
+In case of a sudden disconnection, you have 20 sec to reconnect with the same nickname to get your old character, 
+after that it will be detroyed.
+
+
 ## Rules ##
 
-This game is similar to a classic "Bomber Man". This is a *standalone* version of the game for a single player. In this version, a single character (or player) starts the game with an initial amount of 50 health points. Each fruit brings a character with 10 extra health points, while each bomb blast removes 10 health points. A character is dead when its health points reach zero. A character gets immunity for a while after he's hit by a bomb blast. After a character drops a bomb, he is disarmed for a while.
+This game is similar to a classic "Bomber Man". This is a *standalone* version of the game for a multiplayer. 
+In this version, a  player starts the game with an initial amount of 50 health points. 
+Each fruit brings a character with 10 extra health points, while each bomb blast removes 10 health points. 
+A character is dead when its health points reach zero. A character gets immunity for a while after he's hit by a bomb blast. 
+After a character drops a bomb, he is disarmed for a while.
 
 To play, just use the following keys:
   * use *arrows* to move the current character
   * press *space* to drop a bomb at current position, that will explode after a delay of 5 seconds
   * press *escape* to quit the game
 
-The implementation of this game follows a simple MVC architecture (Model/View/Controller).
 
 ## Known Bugs ##
 

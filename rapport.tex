@@ -154,23 +154,23 @@ Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et
 	\end{itemize}
 
 
-\begin{comment}
-Vous devez rendre ici deux fichiers :
-
-    un rapport PDF (de 5 à 10 pages max, police 12) décrivant votre projet, organisé comme cela :
-        introduction rapide au projet
-        vue d'ensemble fonctionnelle : de ce qui marche parfaitement, de ce qui ne marche pas parfaitement, des bonus et de ce qui reste à faire, ...
-        architecture et implémentation : vous prendrez soin de décrire les choix techniques que vous avez effectués (TCP/UDP, select/thread, recv non bloquant, acquittement, ...), ainsi que de décrire votre protocole réseau au moyen d'un formalisme de votre choix (shéma, algorithme en pseudo-langage, automate, ...).
-        bilan du projet
-    une archive ZIP contenant tous les fichiers sources et ressources (images, ...) utiles au bon fonctionnement de votre projet, ainsi qu'un README détaillant comment lancer et jouer avec votre programme.
-
-La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}.
-
-
-\end{comment}
-
 \newpage
 \part{Projet réseau}
+
+
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=\textwidth]{IMG_Latex/multiecran.png}\\
+	\caption{Capture d'écran sur de multiples clients}
+	\label{shema/cp/multiple}
+\end{figure}
+
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=\textwidth]{IMG_Latex/map01.png}\\
+	\caption{Capture d'écran de la map01}
+	\label{shema/cp/map01}
+\end{figure}
 
 	\section{Méthode de travail}
 
@@ -178,9 +178,13 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 	Notre base de code était ainsi assez modulaire pour ne pas avoir de problèmes sur d'éventuelles modifications ou imprévus du code pour la suite.
 
-	\section{Analyse du modèle}
+	\section{Modèle}
 
-	/**/
+	L'analyse du modèle nous as appris notamment comment fonctionne l'orienté objet sur python. Sachant que tous les membres de notre groupe avait déjà programmé en orienté objet, nous avons pu l'adapter assez facilement, même si nous fumes surpris au niveau de l'EventManager en solo qui correspondait au NetworkClientController du fait du multi-polymorphisme.
+
+	Nous avons du changer quelques parties du modèle, du fait de l'initialisation de certaines classes comme "Bomb" ou "Character" pour que l'on puisse utiliser les fonctions dans le model sans trop les changer. Ce qui aurait permis plus tard de changer les effets de certaines bombes ou des modifications spécifiques à chaque client.
+	
+	( Vue globale du projet en figure \ref{shema/globalproject}.)
 
 	
 	\section{Algorithme et implémentation}
@@ -197,8 +201,14 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 Tout d'abord nous sommes partis dans l'idée que les clients devait eux mêmes calculé tout ce qui concernait les mouvements, la disparition de fruits et le timer des bombes. Comme on peut supposer que la latence est faible comparé à la vitesse d'interaction des utilisateurs, la différence serait minime.
 
-Cela a cependant eu des répercussions, notamment sur la vie des joueurs où certains ont eu la chance (ou pas) d'être encore en vie sur leur client alors que sur les autres le joueur était mort. Nous avons due donc quand même par sécurité synchroniser les vies des joueurs avec les autres.
+Cela a cependant eu quelques répercussions rares, notamment sur la vie des joueurs où certains ont eu la chance (ou pas) d'être encore en vie sur leur client alors que sur les autres le joueur était mort. Nous avons due donc quand même par sécurité synchroniser les vies des joueurs avec les autres, le reste n'ayant pas forcément de conséquence direct sur le jeu.
 \\
+
+Ensuite pour un souci d'organisation et aussi de compatibilité client-serveur, nous avons créer une nouvelle class qui regroupe toutes les fonctions d'encodage et décodage des commandes, \textbf{CommandNetwork}. Son rôle était certes de formater l'envoi et les réponses, mais aussi de modifier le modèle auquel elle est rattaché.
+
+Plus en détail, la fonction \textbf{dec\_command} retournait ensuite la liste des commandes valides pour que du coté serveur on puisse les analyser (cas de "QUIT") et/ou les renvoyer aux autres clients.
+
+
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=\textwidth]{IMG_Latex/Classes.jpg}\\
@@ -222,10 +232,10 @@ Cela a cependant eu des répercussions, notamment sur la vie des joueurs où cer
 
 		En ce qui concerne la gestion des connexions, nous avons choisi d'utiliser select au lieu des threads, car du fait du partage de certaines données comme le model, la liste des sockets, etc, on ne voulait pas "bloquer" ces variables et qu'elles soient disponibles de modifications à n'importe quel moment du jeu sans avoir de problème d'accès. Nous étions plus familier aussi de cet outil grâce au mini-chat réseau\footnote{Travail réalisé durant l'année en réseau.}.
 
-		Puis l'envoi et la réception des données, nous avons choisi d'utiliser les sendall/recv de la bibliotheque socket (\ref{moodle}) en mode non bloquant, car de une, il ne fallait pas bloquer la boucle de jeu pour que tout s'actualise en temps réel, de deux, le sendall permettait de garder un ordre d'envoi chronologique, et nous avons sur les recv gérer quand le buffer recevait plusieurs instructions à la fois.
+		Puis pour l'envoi et la réception des données, nous avons choisi d'utiliser les sendall/recv de la bibliotheque socket (\ref{moodle}) en mode non bloquant, car de une, il ne fallait pas bloquer la boucle de jeu pour que tout s'actualise en temps réel, de deux, le sendall permettait de garder un ordre d'envoi chronologique, et nous avons sur les recv gérer quand le buffer recevait plusieurs instructions à la fois.
 		
-		Ce fut réalisé grâce aux formalismes d'envoi dans la class CommandNetwork, ou on encodait la commande au départ de string en byte array avec enc\_command, et on décodait et on altérait le modèle avec dec\_command, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :
-		\textbf{CMD <arg1> <arg2>\textbackslash\textbackslash}
+		Ce fut réalisé grâce aux formalismes d'envoi dans la class \textbf{CommandNetwork}, ou on encodait la commande au départ de string en byte array avec \textbf{enc\_command}, et on décodait et on altérait le modèle avec \textbf{dec\_command}, qui vérifier aussi si la commande existait. Les commandes réseau sont de cette forme :\\
+		\textbf{CMD <arg1> <arg2> <...>\textbackslash\textbackslash}
 		\\
 
 		Vous avez la liste des commandes en \ref{network.py}
@@ -237,45 +247,70 @@ Cela a cependant eu des répercussions, notamment sur la vie des joueurs où cer
 		Les parties sont de fait plus courtes mais avec plus d'action.
 		\\
 
-		Le principe de cette algorithme est de vérifier pour chaque bombe posé la position d'arrivé du joueur et de celle-ci pour bloquer les mouvements. Nous avions réfléchi à d'autres implémentations en rajoutant sur la map la bombe posé et de vérifier uniquement sur la case d'arrivé du joueur si il y a une bombe, mais cela demanderait beaucoup d'effort pour un petit jeu et plus de mémoire "inutile" si il y a pas de bombes. Comme en plus du fait du timer des bombes et de la période où on peut plus placer de bombes, le nombre de bombes sur le plateau est limité.
+		Le principe de l'algorithme est de vérifier pour chaque bombe posé la position d'arrivé du joueur et de celle-ci pour bloquer les mouvements. Nous avions réfléchi à d'autres implémentations en rajoutant sur la map la bombe posé et de vérifier uniquement sur la case d'arrivé du joueur si il y a une bombe, mais cela demanderait beaucoup d'effort pour un petit jeu et plus de mémoire "inutile" si il y a pas de bombes. Comme en plus du fait du timer des bombes et de la période où on peut plus placer de bombes, le nombre de bombes sur le plateau est limité.
+\newpage
 
-		\lstinputlisting[firstline=256,lastline=294, style=PythonStyle]{model.py}
-
+\begin{figure}[!htbp]
+	\centering
+	\lstinputlisting[firstline=256,lastline=294, style=PythonStyle]{model.py}
+	\caption{Code modifié pour les collisions avec les bombes}
+	\label{shema/codecolliders}
+\end{figure}
+		
+\newpage
 		\subsection{Gestion des déconnexions}
 		
 		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet au départ dés que le client fermait (normalement) son jeu, le programme et la socket se fermaient en même temps, ce qui fait que du coté serveur, il ne faisait pas la différence entre une déconnection normal et une brutal.
 		
 		Nous avons donc en changeant le comportement de l'événement "quit", d'abord envoyer un message au serveur pour se déconnecter, tout en laissant le jeu client tourné jusqu'à que se soit le client qui gère l'erreur du fait de la déconnection par le serveur.
 		\\
+		
 		L'avantage est que pour la gestion des déconnexions brutales, nous avons choisi que si du coté serveur, un message vide ou une déconnexion impromptue du client se produisait, qu'on fermait la socket associé mais que l'on gardait l'avatar du joueur durant un temps déterminé. Ainsi lors de ce scénario, si l'utilisateur se reconnecte avant le temps déterminé, au lieu de créer un nouveau personnage, il récupère l'ancien.
 		
 		Le désavantage, c'est que le client si le serveur ferme brutalement ou que il ferme la connection normalement, on peut pas différencier l'erreur.
 		
 
 	\section{Bilan et critique}
+	
+	Les fonctionnalités manquantes à notre jeu sont l'envoi des données de la map si le client n'a pas la map du serveur, et l'ajout de bonus réseau, n'ayant pas d'idées "fun" à implémenter en réseau. Nous sommes du coup concentré sur le bon fonctionnement des fonctionnalités de base, et sur la gestion de système Afk avec comme bonus celui des collisions. 
+	
+	Il pourrait y avoir des améliorations sur comment gérer les class et l'organisation du code, mais ce n'était pas le but. 
+	\\
+	
+	En soit c'est un projet qui a rempli les principaux objectifs et qui est fonctionnel, même pour un événement inattendu comme le crash d'un serveur ou une déconnection brutal du client. Et en cas de comportements inattendu, le serveur gère les erreurs pour ne pas interrompre son service pour les autres clients. 
+	
+	De plus il peut être facilement amélioré en rajoutant des commandes supplémentaires du fait de sa construction.
+
 
 \newpage
 \appendix
 \part{Annexes}
 
-\section{Doc python socket} \label{docpysoc}
+\listoffigures
 
-https://docs.python.org/3/library/socket.html
+Créé depuis draw.io
+\href{https://www.draw.io}{https://www.draw.io}
+\\
 
-\section{Moodle} \label{moodle}
+Doc python socket:\label{docpysoc}
+\\
+\href{https://docs.python.org/3/library/socket.html}{https://docs.python.org/3/library/socket.html}
+\\
 
-https://moodle1.u-bordeaux.fr/course/view.php?id=3671
+Cours Moodle: \label{moodle}
+\\
+\href{https://moodle1.u-bordeaux.fr/course/view.php?id=3671}{https://moodle1.u-bordeaux.fr/course/view.php?id=3671}
 
 \section{Github} \label{github}
 
 Professeur
 \\
-https://github.com/orel33/bomber
+\href{https://github.com/orel33/bomber}{https://github.com/orel33/bomber}
 \\
 
 Projet
 \\
-https://github.com/m21-cerutti/VM\_Reseau\_L2
+\href{https://github.com/m21-cerutti/VM_Reseau_L2}{https://github.com/m21-cerutti/VM\_Reseau\_L2}
 \\
 
 \newpage

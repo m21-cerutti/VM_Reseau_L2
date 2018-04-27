@@ -129,13 +129,22 @@
 %DOC
 \part{Preambule}
 
+Dans le cadre de l'enseignement '4TIN401U - Réseaux Info L2' (2017 - 2018) à l'Université de Bordeaux, du semestre 4 en Licence Informatique, nous avons dut adapter le jeu \textit{Bomberman} fait grâce à la bibliothèque Pygame en multijoueur (Description en \ref{moodle}).
+\\
+
+Les principaux objectifs de cet enseignement était de nous familiariser sur la mise en réseau de projets informatiques. 
+Il nous as permis ainsi de mettre en pratique nos connaissances théorique sur le réseau, la gestion de ports, de l'envoi et de la réception de données et de son traitement.
+\\
+
+Le rendu final de fin d'année fut donc d'avoir un jeu \textit{Bomberman} fonctionnel  en langage Python, avec un rapport fait sur notre travail avant le \textbf{le vendredi 27 avril à 23h55}.
+
 \begin{comment}
 Vous devez rendre ici deux fichiers :
 
     un rapport PDF (de 5 à 10 pages max, police 12) décrivant votre projet, organisé comme cela :
         introduction rapide au projet
         vue d'ensemble fonctionnelle : de ce qui marche parfaitement, de ce qui ne marche pas parfaitement, des bonus et de ce qui reste à faire, ... 
-        architecture et implementation : vous prendrez soin de décrire les choix techniques que vous avez effectués (TCP/UDP, select/thread, recv non bloquant, acquittement, ...), ainsi que de décrire votre protocole réseau au moyen d'un formalisme de votre choix (shéma, algorithme en pseudo-langage, automate, ...). 
+        architecture et implémentation : vous prendrez soin de décrire les choix techniques que vous avez effectués (TCP/UDP, select/thread, recv non bloquant, acquittement, ...), ainsi que de décrire votre protocole réseau au moyen d'un formalisme de votre choix (shéma, algorithme en pseudo-langage, automate, ...). 
         bilan du projet
     une archive ZIP contenant tous les fichiers sources et ressources (images, ...) utiles au bon fonctionnement de votre projet, ainsi qu'un README détaillant comment lancer et jouer avec votre programme.
 
@@ -147,10 +156,29 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 \newpage
 \part{Projet réseau}
 	\section{Objectifs}
+
+	Les objectifs concrets du projet était d'adapter le projet solo Bomberman en multijoueur à l'aide d'un serveur centralisé, qui ne réalise pas d'affichage graphique, mais maintient à jour l'état courant du jeu. 		Seuls les clients sont en charge de l'interaction avec l'utilisateur (clavier et affichage graphique). Chaque client dispose d'une copie du modèle, qu'il doit maintenir à jour à travers des échanges réseaux avec le serveur.
+	
+	En d'autres termes :
+	\begin{itemize}
+\item Récupération par le client du modèle serveur à travers le réseau (map, fruits, players).
+\item Gestion des connexions / déconnexions des joueurs.
+\item Gestion des déplacements des joueurs.
+\item Gestion des bombes.
+\item Extension à de multiples joueurs.
+\item Gestion des erreurs (mort violente d'un client, coupure réseau).
+\item Ajout de bonus FUN dans le jeu, impliquant de faire du réseau.
+	\end{itemize}
 	
 	\section{Méthode de travail}
 	
+	Pour notre méthode de travail, on s'était mis d'abord d'accord sur les protocoles réseau à utiliser et le squelette du code sur papier, puis on a travailler chacun de son coté en adaptant le code de l'autre.
+	
+	Notre base de code était ainsi assez modulaire pour que l'on ai pas de de problèmes sur d'éventuelles modifications ou imprévu du code pour la suite.
+	
 	\section{Analyse du modèle}
+	
+	
 	
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
@@ -172,6 +200,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 \section{Moodle} \label{moodle}
 
 https://moodle1.u-bordeaux.fr/course/view.php?id=3671
+https://github.com/orel33/bomber
 
 \newpage
 \section{Code Source}

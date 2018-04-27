@@ -185,6 +185,7 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 	\section{Algorithme et implémentation}
 		\subsection{Protocoles}
 		
+		
 
 		\subsection{Choix techniques}
 		Nous avons choisi d'utiliser TCP, car ainsi nous évitions de perdre des données en transit nécessaires au bon déroulement du jeu. Cela permettait d'assurer une synchronisation efficace entre les différents copies du jeu.
@@ -212,6 +213,13 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 		\lstinputlisting[firstline=256,lastline=294, style=PythonStyle]{model.py}
 		
 		\subsection{Gestion des déconnexions}
+		
+		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet au départ dés que le client fermer (normalement) son jeu, le programme et la socket se fermait en meme temps, ce qui fait que du coté serveur, il ne faisait pas la différence. Nous avons donc en changeant le comportement de l'événement "quit", d'abord envoyer un message au serveur pour se déconnecter en laissant le jeu client tourné jusqu'à que se soit le client qui gère l'erreur du fait de la déconnection par le serveur.
+		
+		L'avantage est que pour la gestion des déconnexions brutales, nous avons choisi que si du coté serveur, un message vide ou une déconnexion impromptue du client se produisait, qu'on fermait la socket associé mais que l'on gardait l'avatar du joueur durant un temps déterminé. Ainsi lors de ce scénario, si l'utilisateur se reconnecte avant le temps déterminé, au lieu de créer un nouveau personnage, il récupère l'ancien.
+		
+		Le désavantage, c'est que le client si le serveur ferme brutalement ou que il ferme la connection normalement, on peut pas différencier l'erreur.
+		
 
 	\section{Bilan et critique}
 

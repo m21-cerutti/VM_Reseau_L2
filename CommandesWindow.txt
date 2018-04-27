@@ -1,0 +1,11 @@
+Mémo cmd windows
+cd C:\Users\Marc\Documents\1-Etude\2-Université de Bordeaux\Semestre 3\Projet réseau\VM_Reseau_L2
+python.exe ./bomber_server.py 7777 maps/map0
+
+cd C:\Users\Marc\Documents\1-Etude\2-Université de Bordeaux\Semestre 3\Projet réseau\VM_Reseau_L2
+python.exe ./bomber_client.py localhost 7777 Client
+
+Adresse IPv4 :	87.231.21.100
+	                                   
+cd C:\Users\Marc\Documents\1-Etude\2-Université de Bordeaux\Semestre 3\Projet réseau\VM_Reseau_L2	                                   
+python.exe ./bomber_client.py 87.231.21.100 7777 Client

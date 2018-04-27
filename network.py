@@ -4,6 +4,7 @@
 import socket
 import select
 import threading
+import errno
 import sys
 from model import *
 
@@ -223,6 +224,7 @@ class CommandNetwork:
                 else:
                     listValid.append(str("KILL "+cmdtmp[1]))
                     pass
+                listValid.append(cmd)
                 
             elif cmd.startswith("KILL ") or cmd.startswith("QUIT "):
                 cmdtmp = cmd.split(' ')
@@ -279,26 +281,23 @@ class NetworkServerController:
             nick= listcmd[0].split(" ")[1]
             validNick = True
             Afk = False
-            for s in self.socks:
-                if self.socks[s]== nick and s not in self.afk:
-                    print ("Error command init new player, name already use.")
-                    newSock.sendall(self.cmd.enc_command(str("ERROR command init new player, name already use.")))
-                    validNick = False
-                    newSock.close();
-                if s in self.afk:
-                    Afk=True
+            
+            if nick in self.afk:
+                Afk=True
+            else:
+                for s in self.socks:
+                    if self.socks[s]== nick:
+                        print ("Error command init new player, name already use.")
+                        newSock.sendall(self.cmd.enc_command(str("ERROR command init new player, name already use.")))
+                        validNick = False
+                        newSock.close();
                     
             if validNick :
                 self.socks[newSock]= nick
                 if not Afk :
                     self.cmd.model.add_character(nick, False)
                 else:
-                    for s in self.afk:
-                        if self.socks[s]==nick:
-                            self.afk.pop(s)
-                            self.socks.pop(s)
-                            s.close()
-                            break
+                    self.afk.pop(nick)
                     
                 print("New connection")
                 print(addr)
@@ -365,7 +364,7 @@ class NetworkServerController:
         return
     
     '''
-    Déconnecte un client et renvoie le nom du joueur à supprimer
+    Déconnecte un client et supprime son personnage
     ''' 
     def disconnectClient(self, s):
         if s in self.socks:
@@ -374,6 +373,19 @@ class NetworkServerController:
             s.close()
             self.socks.pop(s)
             self.re_send(s, str("KILL "+ nick))
+            
+    '''
+    Déconnecte un client et le rend AFK
+    ''' 
+    def disconnectAFKClient(self, s):
+        if s in self.socks:
+            nick = self.socks[s]
+            self.afk[nick]=(TIMEOUT+1)*1000-1
+            s.close()
+            self.socks.pop(s)
+            print ("Pass to AFK")
+            print (nick)
+            
             
                       
     # time event
@@ -385,48 +397,38 @@ class NetworkServerController:
                 if s is self.soc:
                     self.clientConnection(s);
                     
-                elif s in self.socks:
-                    if s not in self.afk:
-                        msg =b""
-                        try:
-                            msg = s.recv(SIZE_BUFFER_NETWORK);
-                        except:
-                            print ("Error interuption")
-                            print("Connection client afk.")
-                            self.afk[s]=(TIMEOUT+1)*1000-1
-                            #self.disconnectClient(s)
-                            break
+                elif s in self.socks :
+                    msg =b""
+                    try:
+                        msg = s.recv(SIZE_BUFFER_NETWORK);
+                    except OSError as e:
+                        print(e)
+                        self.disconnectAFKClient(s)
+                        break
                             
-                        if (len(msg) <= 0):
-                            print ("Error message empty.")
-                            self.afk[s]=(TIMEOUT+1)*1000-1
-                            #self.disconnectClient(s)
-                            break
+                    if (len(msg) <= 0):
+                        print ("Error message empty.")
+                        self.disconnectAFKClient(s)
+                        break
                             
-                        else:
-                            listCmd = self.cmd.dec_command(msg)
-                            for cmd in listCmd:
-                                if cmd.startswith("QUIT"):
-                                     self.disconnectClient(s)
-                                     break
-                                else:
-                                    self.re_send(s, cmd)
-                        
-                        for char in self.cmd.model.characters:
-                             self.re_send(s ,str("S_LIFE "+str(char.nickname)+" "+str(char.health)));
                     else:
-                        try:
-                            msg = s.recv(SIZE_BUFFER_NETWORK);
-                            self.afk.pop(s)
-                            
-                        except:
-                            self.afk[s]-=dt
-                            print(int(self.afk[s] / 1000))
-                            if (self.afk[s]<0):
-                                print ("timeout connection")
-                                print (self.socks[s])
-                                self.afk.pop(s)
-                                self.disconnectClient(s)
+                        listCmd = self.cmd.dec_command(msg)
+                        for cmd in listCmd:
+                            if cmd.startswith("QUIT"):
+                                    self.disconnectClient(s)
+                                    break
+                            else:
+                                self.re_send(s, cmd)
+                        
+        for nick in self.afk:
+            self.afk[nick]-=dt
+            #print(int(self.afk[s] / 1000))
+            if (self.afk[nick]<0):
+                print ("Timeout connection")
+                print (nick)
+                self.afk.pop(nick)
+                self.re_send(self.soc, str("KILL "+ nick))
+                break
                     
         
         return True
@@ -502,8 +504,7 @@ class NetworkClientController:
         print("=> event \"quit\"")
         if not self.cmd.model.player: return False
         self.soc.sendall(self.cmd.enc_command(str("QUIT "+self.cmd.model.player.nickname)))
-        sys.exit()
-        return False
+        return True
 
     def keyboard_move_character(self, direction):
         print("=> event \"keyboard move direction\" {}".format(DIRECTIONS_STR[direction]))
@@ -540,7 +541,8 @@ class NetworkClientController:
             for s in sel[0]:
                 try:
                     msg = s.recv(SIZE_BUFFER_NETWORK);
-                except:
+                except OSError as e:
+                    print(e)
                     print ("Error: Server has been disconnected")
                     s.close();
                     sys.exit(1)

@@ -212,6 +212,15 @@ La date de rendu est fixée au \textbf{\textcolor{red}{vendredi 27 avril 23h55}}
 
 		\subsection{Gestion des déconnexions}
 
+		Il y a eu beaucoup de problèmes au niveau de la connection/déconnection des clients. En effet, au départ, dès que le client fermait (normalement) son jeu, le programme et la socket se fermaient en même temps, ce qui fait que le serveur ne faisait pas la différence entre une déconnection normale et une brutale.
+
+		Nous avons donc changé le comportement de l'événement "quit", en envoyant un message au serveur pour se déconnecter, tout en laissant le jeu client tourner jusqu'à ce que ce soit le client qui gère l'erreur du fait de la déconnection par le serveur.
+		\\
+		L'avantage est que, pour la gestion des déconnexions brutales, si du coté serveur, un message vide ou une déconnexion impromptue du client se produit, on ferme la socket associée mais on garde l'avatar du joueur durant un temps déterminé. Ainsi, lors de ce scénario, si l'utilisateur se reconnecte avant le temps déterminé, au lieu de créer un nouveau personnage, il récupère l'ancien.
+
+		L'inconvénient est que si le serveur ferme brutalement ou ferme la connection normalement, on peut pas différencier l'erreur.
+
+
 	\section{Bilan et critique}
 
 \newpage
